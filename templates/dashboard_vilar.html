@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_vilar.css') }}">
+
+<div class="dashboard-container">
+  <div class="dashboard-header animate-fade-in-down">
+    <h2 class="dashboard-title">
+      <i class="fas fa-tachometer-alt"></i>
+    Dashboard
+  </h2>
+    <div class="dashboard-date animate-fade-in">
+      <i class="far fa-calendar-alt"></i>
+    <span>{{ now.strftime('%A, %d de %B de %Y') | capitalize }}</span>
+  </div>
+</div>
+
+  <div class="stats-grid">
+    <div class="stats-card">
+      <div class="stats-icon">
+      <i class="fas fa-clipboard-list"></i>
+    </div>
+      <h3 class="stats-title">Total de serviços no mês</h3>
+      <p class="stats-value">{{ total_installations }}</p>
+      <div class="stats-change {{ 'positive' if (total_installations_percent|default(0)) >= 0 else 'negative' }}">
+        <i class="fas fa-arrow-{{ 'up' if (total_installations_percent|default(0)) >= 0 else 'down' }}"></i>
+        <span>{{ (total_installations_percent|default(0)) | abs }}% hoje</span>
+    </div>
+  </div>
+    <div class="stats-card">
+      <div class="stats-icon">
+      <i class="fas fa-wifi"></i>
+    </div>
+      <h3 class="stats-title">Instalações de Fibra</h3>
+      <p class="stats-value">{{ fiber_installations }}</p>
+      <div class="stats-change {{ 'positive' if (fiber_installations_percent|default(0)) >= 0 else 'negative' }}">
+        <i class="fas fa-arrow-{{ 'up' if (fiber_installations_percent|default(0)) >= 0 else 'down' }}"></i>
+        <span>{{ (fiber_installations_percent|default(0)) | abs }}% hoje</span>
+    </div>
+  </div>
+    <div class="stats-card">
+      <div class="stats-icon">
+      <i class="fas fa-exchange-alt"></i>
+    </div>
+      <h3 class="stats-title">Transferência Fibra</h3>
+      <p class="stats-value">{{ trans_fibra }}</p>
+      <div class="stats-change {{ 'positive' if (trans_fibra_percent|default(0)) >= 0 else 'negative' }}">
+        <i class="fas fa-arrow-{{ 'up' if (trans_fibra_percent|default(0)) >= 0 else 'down' }}"></i>
+        <span>{{ (trans_fibra_percent|default(0)) | abs }}% hoje</span>
+    </div>
+  </div>
+    <div class="stats-card">
+      <div class="stats-icon">
+      <i class="fas fa-tasks"></i>
+    </div>
+      <h3 class="stats-title">Total de Serviços para hoje</h3>
+      <p class="stats-value">{{ total_users }}</p>
+      <div class="stats-change {{ 'positive' if (total_users_percent|default(0)) >= 0 else 'negative' }}">
+        <i class="fas fa-arrow-{{ 'up' if (total_users_percent|default(0)) >= 0 else 'down' }}"></i>
+        <span>{{ (total_users_percent|default(0)) | abs }}% hoje</span>
+    </div>
+  </div>
+
+    <div class="stats-card">
+      <div class="stats-icon">
+        <i class="fas fa-calendar-check"></i>
+      </div>
+      <h3 class="stats-title">Vagas Disponíveis Hoje</h3>
+      <p class="stats-value">{{ vagas_disponiveis }}</p>
+      <div class="stats-change {{ 'positive' if vagas_disponiveis > 0 else 'negative' }}">
+        <i class="fas fa-arrow-{{ 'up' if vagas_disponiveis > 0 else 'down' }}"></i>
+        <span>{{ total_users }} agendados de {{ limite_diario }} vagas</span>
+      </div>
+    </div>
+</div>
+
+  <div class="table-section">
+    <div class="table-header animate-fade-in">
+      <div class="table-title-section">
+        <span class="table-icon">
+          <i class="fas fa-calendar-day"></i>
+        </span>
+        <h3 class="table-title">
+          Serviços Agendado para
+          <span id="filtro-dia-navegacao" style="margin-left: 10px; display: inline-flex; align-items: center; gap: 8px;">
+            {% set dia_atual = now %}
+            {% set dia_anterior = (now - timedelta(days=1)) %}
+            {% set dia_proximo = (now + timedelta(days=1)) %}
+            <a href="{{ url_for('dashboard_vilar', data=dia_anterior.strftime('%Y-%m-%d')) }}" class="btn-dia-nav" title="Dia anterior" style="font-size: 1.2em; padding: 0 8px;">&lt;</a>
+            <div style="position: relative; display: inline-block;">
+              <input type="text" id="data-selecionada" value="{{ dia_atual.strftime('%d/%m/%Y') }}" class="flatpickr-input" style="border: 1px solid #ddd; width: 120px; border-radius: 4px; padding: 4px 8px; font-size: 14px; color: #175cd3; background: white; text-align: center; min-width: 100px;" readonly>
+            </div>
+            <a href="{{ url_for('dashboard_vilar', data=dia_proximo.strftime('%Y-%m-%d')) }}" class="btn-dia-nav" title="Próximo dia" style="font-size: 1.2em; padding: 0 8px;">&gt;</a>
+          </span>
+        </h3>
+      </div>
+      <div class="table-actions">
+      <button
+          id="btnPrintSelected"
+          class="btn-print-selected"
+        title="Imprimir selecionados"
+      >
+          <i class="fas fa-print"></i>
+        Imprimir Selecionados
+      </button>
+      <button
+          id="btnPrintAll"
+          class="btn-print-all"
+        title="Imprimir tabela"
+      >
+          <i class="fas fa-print"></i>
+        Imprimir Todos
+      </button>
+    </div>
+  </div>
+    <div class="table-container">
+    {% if installations %}
+      <table id="installations-table" class="installations-table">
+      <thead>
+        <tr class="table-header-row">
+        <th class="table-header-cell">
+          <input type="checkbox" id="select-all" class="checkbox-input" title="Selecionar todos" />
+      </th>
+        <th class="table-header-cell">
+          <i class="fas fa-id-card"></i>ID Cliente
+      </th>
+        <th class="table-header-cell">
+          <i class="fas fa-user"></i>Cliente
+      </th>
+        <th class="table-header-cell">
+          <i class="fas fa-network-wired"></i>Serviço
+      </th>
+        <th class="table-header-cell">
+          <i class="fas fa-signal"></i>Plano
+      </th>
+        <th class="table-header-cell">
+          <i class="fas fa-calendar-alt"></i>Vencimento
+      </th>
+        <th class="table-header-cell">
+          <i class="fas fa-calendar-day"></i>Agendamento
+      </th>
+        <th class="table-header-cell">
+          <i class="fas fa-user-tie"></i>Atendente
+      </th>
+        <th class="table-header-cell">
+          <i class="fas fa-clock"></i>Turno preferen.
+      </th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for installation in installations %}
+        <tr class="table-row" data-observation="{{ installation['observation']|e }}">
+        <td class="table-cell">
+          <input type="checkbox" class="row-checkbox checkbox-input" value="{{ installation['id'] }}" title="Selecionar esta linha" />
+      </td>
+        <td class="table-cell">
+          <span class="inline-flex items-center animate-fade-in" style="color: #0c0c0cf1; font-size: 14px;">
+          <i class="fas fa-id-card"></i>{{ installation['client_id'] }}
+        </span>
+      </td>
+        <td class="table-cell">
+          <span class="inline-flex items-center animate-fade-in" style="font-size: 13px;">
+          <i class="fas fa-user"></i>
+        {% if installation['client_name'] and installation['client_name']|length > 22 %}
+          {{ installation['client_name'][:22] ~ '...' }}
+        {% else %}
+          {{ installation['client_name'] }}
+        {% endif %}
+        </span>
+      </td>
+        <td class="table-cell">
+      {% set tipo = installation['installation_type']|lower %}
+      {% if 'fibra' in tipo and 'transferência' not in tipo %}
+          <span class="badge badge-green animate-fade-in"><i class="fas fa-bolt"></i>{{ installation['installation_type'] }}</span>
+      {% elif 'pacpon' in tipo and 'transferência' not in tipo %}
+          <span class="badge badge-pacpon animate-fade-in"><i class="fas fa-bolt"></i>{{ installation['installation_type'] }}</span>
+      {% elif 'utp' in tipo and 'transferência' not in tipo %}
+          <span class="badge badge-utp animate-fade-in"><i class="fas fa-bolt"></i>{{ installation['installation_type'] }}</span>
+      {% elif 'migração' in tipo %}
+          <span class="badge badge-migracao animate-fade-in"><i class="fas fa-exchange-alt"></i>{{ installation['installation_type'] }}</span>
+      {% elif 'pedido de transferência' in tipo %}
+          <span class="badge badge-pedido-transferencia animate-fade-in"><i class="fas fa-random"></i>{{ installation['installation_type'] }}</span>
+      {% elif tipo == 'transferência' %}
+          <span class="badge badge-transferencia animate-fade-in"><i class="fas fa-random"></i>{{ installation['installation_type'] }}</span>
+      {% elif 'comodo' in tipo %}
+          <span class="badge badge-comodo animate-fade-in"><i class="fas fa-home"></i>{{ installation['installation_type'] }}</span>
+      {% elif 'transferência fibra' in tipo %}
+          <span class="badge badge-transferencia-fibra animate-fade-in"><i class="fas fa-random"></i>{{ installation['installation_type'] }}</span>
+      {% elif 'transferência pacpon' in tipo %}
+          <span class="badge badge-transferencia-pacpon animate-fade-in"><i class="fas fa-random"></i>{{ installation['installation_type'] }}</span>
+      {% elif 'transferência utp' in tipo %}
+          <span class="badge badge-transferencia-utp animate-fade-in"><i class="fas fa-random"></i>{{ installation['installation_type'] }}</span>
+      {% else %}
+          <span class="badge badge-blue animate-fade-in"><i class="fas fa-bolt"></i>{{ installation['installation_type'] }}</span>
+      {% endif %}
+      </td>
+        <td class="table-cell" >
+          <span class="inline-flex items-center animate-fade-in" style="color: #1f1f1ff1;">
+          <i class="fas fa-signal"></i>{{ installation['plan'] }}
+        </span>
+      </td>
+        <td class="table-cell">
+        <span class="inline-flex items-center animate-fade-in">
+          <i class="fas fa-calendar-alt"></i>{{ installation['request_date'] if installation['request_date'] is not none else '' }}
+        </span>
+      </td>
+        <td class="table-cell">
+        <span class="inline-flex items-center animate-fade-in">
+          <i class="fas fa-calendar-day"></i>{{ installation['due_date'] }}
+        </span>
+      </td>
+        <td class="table-cell">
+        <span class="inline-flex items-center animate-fade-in">
+          <i class="fas fa-user-tie"></i>
+        {% if installation['attendant'] and installation['attendant']|length > 15 %}
+          {{ installation['attendant'][:15] ~ '...' }}
+        {% else %}
+          {{ installation['attendant'] }}
+        {% endif %}
+        </span>
+      </td>
+        <td class="table-cell">
+        <span class="inline-flex items-center animate-fade-in">
+          <i class="fas fa-clock"></i>{{ installation['turno_preferencial'] or '' }}
+        </span>
+      </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <div class="no-installations">
+        <div class="no-installations-container">
+        <i class="fas fa-search"></i>
+      <p>Nenhuma instalação encontrada.</p>
+      </div>
+    </div>
+    {% endif %}
+    </div>
+</div>
+</div>
+
+<!-- Dados dos indicadores do calendário -->
+<script id="calendar-indicators-data" type="application/json">
+  {{ calendar_indicators|tojson|safe }}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard_vilar.js') }}"></script>
+
+{% endblock %}

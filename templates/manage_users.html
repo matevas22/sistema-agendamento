@@ -1,0 +1,584 @@
+{% extends "base.html" %} {% block title %}Gerenciar Usuários{% endblock %} {%
+block content %}
+<div class="p-6">
+  <div class="flex justify-between items-center mb-8">
+    <h2
+      class="text-3xl font-extrabold text-gradient bg-gradient-to-r from-blue-500 via-orange-400 to-orange-500 bg-clip-text text-transparent flex items-center gap-3 animate-fade-in"
+    >
+      Usuários
+    </h2>
+    <button
+      onclick="showAddUserModal()"
+      class="btn flex items-center gap-2 bg-gradient-to-r from-blue-500 via-orange-400 to-orange-500 hover:from-orange-400 hover:to-blue-500 text-white font-semibold py-2 px-5 rounded-xl shadow-lg transition-all duration-200 transform hover:scale-105 animate-bounce-in"
+    >
+      <i class="fas fa-plus-circle text-white text-lg"></i>
+      Novo Usuário
+    </button>
+  </div>
+
+  <!-- Seção de Filtros -->
+  <div class="bg-white rounded-3xl shadow-xl p-6 mb-6 animate-fade-in-up">
+    <div class="flex items-center mb-4">
+      <i class="fas fa-filter text-blue-500 mr-2"></i>
+      <h3 class="text-lg font-semibold text-gray-800">Filtros</h3>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label class="block text-gray-700 font-medium mb-2 flex items-center">
+          <i class="fas fa-user mr-2 text-blue-500"></i>
+          Nome
+        </label>
+        <input
+          type="text"
+          id="filterName"
+          placeholder="Filtrar por nome..."
+          class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all duration-200"
+        >
+      </div>
+      <div>
+        <label class="block text-gray-700 font-medium mb-2 flex items-center">
+          <i class="fas fa-at mr-2 text-orange-500"></i>
+          Login
+        </label>
+        <input
+          type="text"
+          id="filterLogin"
+          placeholder="Filtrar por login..."
+          class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:outline-none transition-all duration-200"
+        >
+      </div>
+      <div>
+        <label class="block text-gray-700 font-medium mb-2 flex items-center">
+          <i class="fas fa-user-tag mr-2 text-green-500"></i>
+          Tipo
+        </label>
+        <select
+          id="filterType"
+          class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none transition-all duration-200"
+        >
+          <option value="">Todos os tipos</option>
+          <option value="admin">Administrador</option>
+          <option value="user">Usuário</option>
+        </select>
+      </div>
+    </div>
+    <div class="flex justify-between items-center mt-4">
+      <div class="text-sm text-gray-600">
+        <span id="userCount">0</span> usuário(s) encontrado(s)
+      </div>
+      <button
+        onclick="clearFilters()"
+        class="btn bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-medium flex items-center gap-2 transition-all duration-200"
+      >
+        <i class="fas fa-times"></i>
+        Limpar Filtros
+      </button>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-3xl shadow-xl p-8 animate-fade-in-up">
+    <div class="table-container overflow-x-auto">
+      {% if users %}
+      <table class="w-full text-left border-separate border-spacing-y-2" id="usersTable">
+        <thead>
+          <tr>
+            <th class="px-4 py-2 text-gray-500 font-semibold">ID</th>
+            <th class="px-4 py-2 text-gray-500 font-semibold cursor-pointer hover:text-blue-500 transition-colors duration-200" onclick="sortTable('name')">
+              <div class="flex items-center gap-2">
+                Nome
+                <i class="fas fa-sort-up text-blue-500" id="sort-name-icon"></i>
+              </div>
+            </th>
+            <th class="px-4 py-2 text-gray-500 font-semibold cursor-pointer hover:text-orange-500 transition-colors duration-200" onclick="sortTable('login')">
+              <div class="flex items-center gap-2">
+                Login
+                <i class="fas fa-sort text-gray-400" id="sort-login-icon"></i>
+              </div>
+            </th>
+            <th class="px-4 py-2 text-gray-500 font-semibold cursor-pointer hover:text-green-500 transition-colors duration-200" onclick="sortTable('type')">
+              <div class="flex items-center gap-2">
+                Tipo
+                <i class="fas fa-sort text-gray-400" id="sort-type-icon"></i>
+              </div>
+            </th>
+            <th class="px-4 py-2 text-gray-500 font-semibold">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="usersTableBody">
+          {% for user in users %}
+          <tr
+            class="user-row bg-gradient-to-r from-blue-50 via-orange-50 to-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 animate-row-fade-in"
+            data-name="{{ user.name.lower() }}"
+            data-login="{{ user.login.lower() }}"
+            data-type="{{ user.type.lower() }}"
+          >
+            <td class="px-4 py-3 rounded-l-xl font-bold text-blue-500">
+              {{ user.id }}
+            </td>
+            <td class="px-4 py-3 flex items-center gap-2">
+              <i
+                class="fas fa-user-circle text-blue-400 bg-blue-100 rounded-full p-1"
+              ></i>
+              <span class="font-medium text-gray-800">{{ user.name }}</span>
+            </td>
+            <td class="px-4 py-3">
+              <i
+                class="fas fa-at text-orange-400 bg-orange-100 rounded-full p-1 mr-1"
+              ></i>
+              <span class="text-gray-700">{{ user.login }}</span>
+            </td>
+            <td class="px-4 py-3">
+              <span
+                class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-blue-100 to-orange-100 text-blue-500 font-semibold text-sm shadow"
+              >
+                <i class="fas fa-user-tag text-orange-400"></i> {{ user.type }}
+              </span>
+            </td>
+            <td class="px-4 py-3 rounded-r-xl flex gap-2">
+              <button
+                class="edit-user-btn flex items-center gap-1 bg-blue-50 hover:bg-blue-100 text-blue-500 hover:text-blue-700 px-3 py-1 rounded-lg font-semibold shadow transition-all duration-150"
+                data-id="{{ user.id }}"
+                data-name="{{ user.name }}"
+                data-login="{{ user.login }}"
+                data-type="{{ user.type }}"
+              >
+                <i class="fas fa-edit"></i> Editar
+              </button>
+              <button
+                class="delete-btn flex items-center gap-1 bg-orange-50 hover:bg-orange-100 text-orange-400 hover:text-orange-600 px-3 py-1 rounded-lg font-semibold shadow transition-all duration-150"
+                data-url="{{ url_for('delete_user', id=user.id) }}"
+                data-id="{{ user.id }}"
+                data-type="usuário"
+              >
+                <i class="fas fa-trash-alt"></i> Excluir
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="py-10 text-center text-gray-500 animate-fade-in">
+        <div class="flex flex-col items-center gap-2">
+          <i
+            class="fas fa-search text-4xl mb-2 text-blue-200 animate-pulse"
+          ></i>
+          <p class="text-lg font-medium">Nenhum usuário encontrado.</p>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript para Filtros e Ordenação -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterName = document.getElementById('filterName');
+    const filterLogin = document.getElementById('filterLogin');
+    const filterType = document.getElementById('filterType');
+    const userRows = document.querySelectorAll('.user-row');
+    const userCount = document.getElementById('userCount');
+    
+    // Variáveis para ordenação
+    let currentSortColumn = '';
+    let currentSortDirection = 'asc';
+
+    function filterUsers() {
+        const nameFilter = filterName.value.toLowerCase();
+        const loginFilter = filterLogin.value.toLowerCase();
+        const typeFilter = filterType.value.toLowerCase();
+        
+        let visibleCount = 0;
+
+        userRows.forEach(row => {
+            const name = row.getAttribute('data-name');
+            const login = row.getAttribute('data-login');
+            const type = row.getAttribute('data-type');
+            
+            const nameMatch = name.includes(nameFilter);
+            const loginMatch = login.includes(loginFilter);
+            const typeMatch = typeFilter === '' || type === typeFilter;
+            
+            if (nameMatch && loginMatch && typeMatch) {
+                row.style.display = '';
+                visibleCount++;
+                row.classList.add('animate-row-fade-in');
+            } else {
+                row.style.display = 'none';
+                row.classList.remove('animate-row-fade-in');
+            }
+        });
+        
+        userCount.textContent = visibleCount;
+        
+        // Mostrar mensagem quando não há resultados
+        const noResultsDiv = document.querySelector('.py-10.text-center');
+        if (visibleCount === 0 && userRows.length > 0) {
+            if (!noResultsDiv) {
+                const tableBody = document.getElementById('usersTableBody');
+                const noResults = document.createElement('tr');
+                noResults.innerHTML = `
+                    <td colspan="5" class="py-10 text-center text-gray-500">
+                        <div class="flex flex-col items-center gap-2">
+                            <i class="fas fa-search text-4xl mb-2 text-blue-200 animate-pulse"></i>
+                            <p class="text-lg font-medium">Nenhum usuário encontrado com os filtros aplicados.</p>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(noResults);
+            }
+        } else if (noResultsDiv) {
+            noResultsDiv.remove();
+        }
+    }
+
+    function clearFilters() {
+        filterName.value = '';
+        filterLogin.value = '';
+        filterType.value = '';
+        filterUsers();
+        
+        // Adicionar efeito visual
+        const clearBtn = document.querySelector('button[onclick="clearFilters()"]');
+        clearBtn.classList.add('bg-green-100', 'text-green-700');
+        setTimeout(() => {
+            clearBtn.classList.remove('bg-green-100', 'text-green-700');
+        }, 500);
+    }
+
+    // Função para normalizar texto (remover acentos)
+    function normalizeText(text) {
+        return text.normalize('NFD')
+                  .replace(/[\u0300-\u036f]/g, '')
+                  .toLowerCase();
+    }
+    
+    // Função de ordenação
+    function sortTable(column) {
+        const tableBody = document.getElementById('usersTableBody');
+        const rows = Array.from(tableBody.querySelectorAll('.user-row'));
+        
+        // Determinar direção da ordenação
+        if (currentSortColumn === column) {
+            currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            currentSortColumn = column;
+            currentSortDirection = 'asc';
+        }
+        
+        // Atualizar ícones
+        updateSortIcons(column, currentSortDirection);
+        
+        // Ordenar linhas
+        rows.sort((a, b) => {
+            let aValue, bValue;
+            
+            switch(column) {
+                case 'name':
+                    aValue = a.getAttribute('data-name');
+                    bValue = b.getAttribute('data-name');
+                    break;
+                case 'login':
+                    aValue = a.getAttribute('data-login');
+                    bValue = b.getAttribute('data-login');
+                    break;
+                case 'type':
+                    aValue = a.getAttribute('data-type');
+                    bValue = b.getAttribute('data-type');
+                    break;
+                default:
+                    return 0;
+            }
+            
+            // Normalizar valores para ordenação
+            const aNormalized = normalizeText(aValue);
+            const bNormalized = normalizeText(bValue);
+            
+            if (currentSortDirection === 'asc') {
+                return aNormalized.localeCompare(bNormalized, 'pt-BR', { 
+                    sensitivity: 'base',
+                    numeric: true 
+                });
+            } else {
+                return bNormalized.localeCompare(aNormalized, 'pt-BR', { 
+                    sensitivity: 'base',
+                    numeric: true 
+                });
+            }
+        });
+        
+        // Reordenar linhas na tabela
+        rows.forEach((row, index) => {
+            row.style.animationDelay = `${index * 50}ms`;
+            tableBody.appendChild(row);
+        });
+        
+        // Aplicar animação de reordenação
+        rows.forEach(row => {
+            row.classList.remove('animate-row-fade-in');
+            void row.offsetWidth; // Trigger reflow
+            row.classList.add('animate-row-fade-in');
+        });
+    }
+    
+    function updateSortIcons(activeColumn, direction) {
+        // Resetar todos os ícones
+        document.querySelectorAll('[id^="sort-"]').forEach(icon => {
+            icon.className = 'fas fa-sort text-gray-400';
+        });
+        
+        // Definir ícone ativo
+        const activeIcon = document.getElementById(`sort-${activeColumn}-icon`);
+        if (activeIcon) {
+            activeIcon.className = direction === 'asc' 
+                ? 'fas fa-sort-up text-blue-500' 
+                : 'fas fa-sort-down text-blue-500';
+        }
+    }
+
+    // Event listeners
+    filterName.addEventListener('input', filterUsers);
+    filterLogin.addEventListener('input', filterUsers);
+    filterType.addEventListener('change', filterUsers);
+    
+    // Expor funções globalmente
+    window.clearFilters = clearFilters;
+    window.sortTable = sortTable;
+    
+    // Inicializar contador e ordenação
+    filterUsers();
+    
+    // Definir ordenação inicial por nome (ascendente)
+    currentSortColumn = 'name';
+    currentSortDirection = 'asc';
+    updateSortIcons('name', 'asc');
+});
+</script>
+
+<style>
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes row-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-row-fade-in {
+    animation: row-fade-in 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes bounce-in {
+    0% {
+      transform: scale(0.9);
+    }
+    60% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  .animate-bounce-in {
+    animation: bounce-in 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .text-gradient {
+    background: linear-gradient(90deg, #3b82f6 0%, #fb923c 50%, #f59e42 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  /* Estilos para cabeçalhos ordenáveis */
+  th[onclick] {
+    user-select: none;
+  }
+  
+  th[onclick]:hover {
+    background-color: rgba(59, 130, 246, 0.05);
+    border-radius: 8px;
+  }
+  
+  th[onclick]:active {
+    transform: scale(0.98);
+  }
+  
+  /* Animação para reordenação */
+  .animate-row-fade-in {
+    animation: row-fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+</style>
+
+<!-- Add User Modal -->
+<div
+  id="addUserModal"
+  class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden"
+>
+  <div
+    class="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl transform transition-all duration-300 scale-95 animate-fade-in relative"
+  >
+    <button
+      type="button"
+      onclick="closeAddUserModal()"
+      class="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors duration-200 text-2xl"
+      aria-label="Fechar"
+    >
+      <i class="fas fa-times-circle"></i>
+    </button>
+    <div class="flex items-center mb-6">
+      <div class="bg-primary bg-opacity-10 rounded-full p-3 mr-3">
+        <i class="fas fa-user-plus text-primary text-2xl"></i>
+      </div>
+      <h3 class="text-2xl font-bold text-gray-800">Adicionar Usuário</h3>
+    </div>
+    <form id="addUserForm" method="POST" action="{{ url_for('add_user') }}">
+      {{ form.hidden_tag() }}
+      <div class="mb-5">
+        <label class="block text-gray-700 font-semibold mb-1 flex items-center">
+          <i class="fas fa-user mr-2 text-primary"></i>
+          {{ form.name.label.text }}
+        </label>
+        {{ form.name(class="w-full p-3 border border-gray-200 rounded-xl
+        focus:ring-2 focus:ring-primary focus:outline-none transition") }} {%
+        for error in form.name.errors %}
+        <span class="text-red-500 text-sm">{{ error }}</span>
+        {% endfor %}
+      </div>
+      <div class="mb-5">
+        <label class="block text-gray-700 font-semibold mb-1 flex items-center">
+          <i class="fas fa-at mr-2 text-primary"></i>
+          {{ form.login.label.text }}
+        </label>
+        {{ form.login(class="w-full p-3 border border-gray-200 rounded-xl
+        focus:ring-2 focus:ring-primary focus:outline-none transition") }} {%
+        for error in form.login.errors %}
+        <span class="text-red-500 text-sm">{{ error }}</span>
+        {% endfor %}
+      </div>
+      <div class="mb-5">
+        <label class="block text-gray-700 font-semibold mb-1 flex items-center">
+          <i class="fas fa-user-tag mr-2 text-primary"></i>
+          {{ form.type.label.text }}
+        </label>
+        {{ form.type(class="w-full p-3 border border-gray-200 rounded-xl
+        focus:ring-2 focus:ring-primary focus:outline-none transition") }} {%
+        for error in form.type.errors %}
+        <span class="text-red-500 text-sm">{{ error }}</span>
+        {% endfor %}
+      </div>
+      <div class="mb-5 relative">
+        <label class="block text-gray-700 font-semibold mb-1 flex items-center">
+          <i class="fas fa-lock mr-2 text-primary"></i>
+          {{ form.password.label.text }}
+        </label>
+        <div class="relative">
+          {{ form.password(class="w-full p-3 border border-gray-200 rounded-xl
+          focus:ring-2 focus:ring-primary focus:outline-none transition pr-12",
+          type="password", id="passwordField") }}
+          <button
+            type="button"
+            tabindex="-1"
+            onclick="togglePassword('passwordField', this)"
+            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary transition-colors duration-200 focus:outline-none"
+          >
+            <i class="fas fa-eye-slash transition-transform duration-200"></i>
+          </button>
+        </div>
+        {% for error in form.password.errors %}
+        <span class="text-red-500 text-sm">{{ error }}</span>
+        {% endfor %}
+      </div>
+      <div class="mb-7 relative">
+        <label class="block text-gray-700 font-semibold mb-1 flex items-center">
+          <i class="fas fa-lock-open mr-2 text-primary"></i>
+          {{ form.confirm_password.label.text }}
+        </label>
+        <div class="relative">
+          {{ form.confirm_password(class="w-full p-3 border border-gray-200
+          rounded-xl focus:ring-2 focus:ring-primary focus:outline-none
+          transition pr-12", type="password", id="confirmPasswordField") }}
+          <button
+            type="button"
+            tabindex="-1"
+            onclick="togglePassword('confirmPasswordField', this)"
+            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary transition-colors duration-200 focus:outline-none"
+          >
+            <i class="fas fa-eye-slash transition-transform duration-200"></i>
+          </button>
+        </div>
+        {% for error in form.confirm_password.errors %}
+        <span class="text-red-500 text-sm">{{ error }}</span>
+        {% endfor %}
+      </div>
+      <script>
+        function togglePassword(fieldId, btn) {
+          const input = document.getElementById(fieldId);
+          const icon = btn.querySelector("i");
+          if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+            icon.style.transform = "scale(1.2)";
+            setTimeout(() => {
+              icon.style.transform = "scale(1)";
+            }, 150);
+          } else {
+            input.type = "password";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+            icon.style.transform = "scale(1.2)";
+            setTimeout(() => {
+              icon.style.transform = "scale(1)";
+            }, 150);
+          }
+        }
+      </script>
+      <div class="flex justify-end space-x-2">
+        <button
+          type="button"
+          onclick="closeAddUserModal()"
+          class="btn bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-5 rounded-xl font-semibold flex items-center transition"
+        >
+          <i class="fas fa-times mr-2"></i> Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn bg-primary hover:bg-secondary text-white py-2 px-5 rounded-xl font-semibold flex items-center shadow transition"
+        >
+          <i class="fas fa-save mr-2"></i> Salvar
+        </button>
+      </div>
+    </form>
+  </div>
+  <style>
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    .animate-fade-in {
+      animation: fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  </style>
+</div>
+{% endblock %}

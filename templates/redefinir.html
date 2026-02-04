@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <link
+    rel="icon"
+    href="{{ url_for('static', filename='img/netflex.png') }}"
+    type="image/x-icon"
+    />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redefinir Senha - Netflex</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/redefinir.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+  <button id="toggle-dark" class="toggle-dark-btn" onclick="toggleDarkMode()" title="Alternar modo escuro/claro">
+    <i class="fa fa-moon"></i>
+  </button>
+  <div class="redefinir-container">
+    <h2>Redefinir Senha</h2>
+    <form id="redefinirForm" method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="form-group">
+        <label for="senha">Nova Senha</label>
+        <div class="input-olho-group">
+          <input type="password" id="senha" name="senha" required placeholder="Digite a nova senha">
+          <button type="button" class="olho-btn" tabindex="-1" onclick="toggleSenha('senha', this)"><i class="fa fa-eye"></i></button>
+        </div>
+        <div id="forca-senha" class="forca-senha"></div>
+      </div>
+      <div class="form-group">
+        <label for="confirma">Confirmar Nova Senha</label>
+        <div class="input-olho-group">
+          <input type="password" id="confirma" name="confirma" required placeholder="Confirme a nova senha">
+          <button type="button" class="olho-btn" tabindex="-1" onclick="toggleSenha('confirma', this)"><i class="fa fa-eye"></i></button>
+        </div>
+      </div>
+      <button type="submit">Redefinir Senha</button>
+      <div id="redefinir-message"></div>
+    </form>
+    <div class="voltar-login">
+      <a href="{{ url_for('login') }}">Voltar ao login</a>
+    </div>
+  </div>
+  <div id="modal-sucesso-redefinir" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); justify-content:center; align-items:center;">
+    <div style="background:#fff; border-radius:16px; padding:32px 40px; box-shadow:0 8px 32px rgba(0,0,0,0.18); text-align:center; max-width:90vw;">
+      <div style="font-size:48px; color:#38a169; margin-bottom:16px;"><i class="fas fa-check-circle"></i></div>
+      <h2 style="font-size:1.5rem; font-weight:bold; margin-bottom:8px; color:#38a169;">Senha redefinida com sucesso!</h2>
+      <p style="font-size:1rem; color:#444;">Você será redirecionado para o login.</p>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='js/redefinir.js') }}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('sucesso') === '1') {
+        const modal = document.getElementById('modal-sucesso-redefinir');
+        if (modal) {
+          modal.style.display = 'flex';
+          setTimeout(() => {
+            window.location.href = "{{ url_for('login') }}";
+          }, 2000);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

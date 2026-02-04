@@ -1,0 +1,460 @@
+{% extends "base.html" %} {% block title %}Configurações{% endblock %} {% block
+content %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/configuracoes.css') }}"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+/>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+<div class="configuracoes-container">
+  <h2 class="configuracoes-title"><i class="fas fa-cog"></i> Configurações</h2>
+  <div class="configuracoes-content">
+    <form id="formPlanos" class="feriados-form" style="margin-bottom: 2rem">
+      <h3>Gerenciar Planos</h3>
+      <div class="planos-container">
+        <div
+          class="input-group"
+          style="display: flex; gap: 10px; margin-bottom: 15px"
+        >
+          <input
+            type="text"
+            id="novoPlano"
+            placeholder="Nome do novo plano"
+            class="form-input"
+            style="flex: 1"
+          />
+          <button
+            type="button"
+            id="btnAdicionarPlano"
+            class="btn-salvar-feriados"
+            style="margin-top: 0"
+          >
+            <i class="fas fa-plus"></i> Adicionar
+          </button>
+        </div>
+        <ul id="listaPlanos" class="lista-planos">
+          <!-- Planos serão inseridos aqui via JS -->
+        </ul>
+      </div>
+      <div id="msgPlanos" class="msg-feriados"></div>
+    </form>
+
+    <form id="formFeriados" class="feriados-form" style="margin-bottom: 2rem">
+      <h3>Feriados do ano</h3>
+      <input
+        type="text"
+        id="inputFeriados"
+        name="feriados"
+        placeholder="Selecione os feriados"
+        readonly
+      />
+      <button type="submit" class="btn-salvar-feriados" style="margin-top: 8px">
+        <i class="fas fa-save"></i> Salvar Feriados
+      </button>
+      <div id="msgFeriados" class="msg-feriados"></div>
+    </form>
+    <form id="formLimites" class="limites-form">
+      <h3>Limite diário de instalações - Padrão por dia da semana</h3>
+      <p class="info-text">
+        Configure os limites padrão. Estes serão usados quando não houver limite
+        personalizado para uma data específica.
+      </p>
+      <div class="dias-semana-tabela">
+        <table>
+          <thead>
+            <tr>
+              <th>Filial</th>
+              <th>Seg</th>
+              <th>Ter</th>
+              <th>Qua</th>
+              <th>Qui</th>
+              <th>Sex</th>
+              <th>Sáb</th>
+              <th>Dom</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Caxias</td>
+              <td>
+                <input
+                  type="number"
+                  id="caxias_seg"
+                  name="caxias_seg"
+                  min="0"
+                  max="100"
+                  required
+                  disabled
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  id="caxias_ter"
+                  name="caxias_ter"
+                  min="0"
+                  max="100"
+                  required
+                  disabled
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  id="caxias_qua"
+                  name="caxias_qua"
+                  min="0"
+                  max="100"
+                  required
+                  disabled
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  id="caxias_qui"
+                  name="caxias_qui"
+                  min="0"
+                  max="100"
+                  required
+                  disabled
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  id="caxias_sex"
+                  name="caxias_sex"
+                  min="0"
+                  max="100"
+                  required
+                  disabled
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  id="caxias_sab"
+                  name="caxias_sab"
+                  min="0"
+                  max="100"
+                  required
+                  disabled
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  id="caxias_dom"
+                  name="caxias_dom"
+                  min="0"
+                  max="100"
+                  required
+                  disabled
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Vilar</td>
+              <td>
+                <input
+                  type="number"
+                  id="vilar_seg"
+                  name="vilar_seg"
+                  min="0"
+                  max="100"
+                  required
+                  disabled
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  id="vilar_ter"
+                  name="vilar_ter"
+                  min="0"
+                  max="100"
+                  required
+                  disabled
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  id="vilar_qua"
+                  name="vilar_qua"
+                  min="0"
+                  max="100"
+                  required
+                  disabled
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  id="vilar_qui"
+                  name="vilar_qui"
+                  min="0"
+                  max="100"
+                  required
+                  disabled
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  id="vilar_sex"
+                  name="vilar_sex"
+                  min="0"
+                  max="100"
+                  required
+                  disabled
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  id="vilar_sab"
+                  name="vilar_sab"
+                  min="0"
+                  max="100"
+                  required
+                  disabled
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  id="vilar_dom"
+                  name="vilar_dom"
+                  min="0"
+                  max="100"
+                  required
+                  disabled
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="botoes-limite">
+        <button type="button" id="btnEditarLimite" class="btn-editar-limite">
+          <i class="fas fa-edit"></i> Editar Limites Padrão
+        </button>
+        <button
+          type="submit"
+          id="btnSalvarLimite"
+          class="btn-salvar-limite"
+          style="display: none"
+        >
+          <i class="fas fa-save"></i> Salvar Limites Padrão
+        </button>
+      </div>
+      <div id="msgLimite" class="msg-limite"></div>
+    </form>
+
+    <form id="formLimitesPersonalizados" class="limites-form">
+      <h3>Limites Personalizados por Data</h3>
+      <p class="info-text">
+        Configure limites específicos para datas individuais. Clique em um dia
+        do calendário para personalizar seu limite.
+      </p>
+
+      <div class="calendar-controls">
+        <div class="filial-selector">
+          <label for="selectFilialLimite">Filial:</label>
+          <select id="selectFilialLimite" class="form-select">
+            <option value="Caxias">Caxias</option>
+            <option value="Vilar">Vilar</option>
+          </select>
+        </div>
+        <div class="month-navigation">
+          <button type="button" id="prevMonth" class="btn-nav">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <span id="currentMonth" class="month-label"></span>
+          <button type="button" id="nextMonth" class="btn-nav">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="calendarContainer" class="calendar-container"></div>
+
+      <div class="legend">
+        <div class="legend-item">
+          <span class="legend-color" style="background: #e5e7eb"></span>
+          <span>Dia normal (sem limite personalizado)</span>
+        </div>
+        <div class="legend-item">
+          <span
+            class="legend-color"
+            style="background: #fbbf24; border: 2px solid #f59e0b"
+          ></span>
+          <span>Dia com limite personalizado</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color" style="background: #3b82f6"></span>
+          <span>Dia com serviços agendados</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color" style="background: #ef4444"></span>
+          <span>Dia lotado (limite atingido)</span>
+        </div>
+      </div>
+
+      <div id="dayEditModal" class="modal" style="display: none">
+        <div class="modal-content">
+          <span class="close-modal">&times;</span>
+          <h4 id="modalDate"></h4>
+          <div class="modal-form">
+            <label for="modalLimit">Limite:</label>
+            <input type="number" id="modalLimit" min="0" max="100" required />
+            <div class="modal-info" id="modalInfo"></div>
+            <div class="modal-buttons">
+              <button
+                type="button"
+                id="btnSaveDayLimit"
+                class="btn-salvar-limite"
+              >
+                <i class="fas fa-save"></i> Salvar
+              </button>
+              <button
+                type="button"
+                id="btnRemoveDayLimit"
+                class="btn-remover-limite"
+                style="display: none"
+              >
+                <i class="fas fa-trash"></i> Remover Personalização
+              </button>
+              <button
+                type="button"
+                id="btnCancelDayLimit"
+                class="btn-cancelar-limite"
+              >
+                <i class="fas fa-times"></i> Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="msgLimitePersonalizado" class="msg-limite"></div>
+    </form>
+
+    <form id="formServicos" class="servicos-form">
+      <h3>Pesquisar e Editar Serviços</h3>
+      <div class="pesquisa-servico">
+        <div class="campo-pesquisa">
+          <label for="pesquisaId">ID do Cliente:</label>
+          <input
+            type="text"
+            id="pesquisaId"
+            name="pesquisaId"
+            placeholder="Digite o ID do cliente"
+          />
+        </div>
+        <div class="campo-pesquisa">
+          <label for="pesquisaNome">Nome do Cliente:</label>
+          <input
+            type="text"
+            id="pesquisaNome"
+            name="pesquisaNome"
+            placeholder="Digite o nome do cliente"
+          />
+        </div>
+        <div class="campo-pesquisa-botao">
+          <button type="button" id="btnPesquisar" class="btn-pesquisar">
+            <i class="fas fa-search"></i> Pesquisar
+          </button>
+        </div>
+        <div id="msgPesquisa" class="msg-pesquisa"></div>
+      </div>
+
+      <div
+        id="formularioEdicao"
+        class="formulario-edicao"
+        style="display: none"
+      >
+        <h4>Editar Serviço</h4>
+        <div class="campos-edicao">
+          <div class="campo-edicao">
+            <label for="editClientId">ID do Cliente:</label>
+            <input type="text" id="editClientId" name="editClientId" readonly />
+          </div>
+          <div class="campo-edicao">
+            <label for="editClientName">Nome do Cliente:</label>
+            <input
+              type="text"
+              id="editClientName"
+              name="editClientName"
+              readonly
+            />
+          </div>
+          <div class="campo-edicao">
+            <label for="editInstallationType">Tipo de Instalação:</label>
+            <input
+              type="text"
+              id="editInstallationType"
+              name="editInstallationType"
+              readonly
+            />
+          </div>
+          <div class="campo-edicao">
+            <label for="editPlan">Plano:</label>
+            <input type="text" id="editPlan" name="editPlan" readonly />
+          </div>
+          <div class="campo-edicao">
+            <label for="editRequestDate">Vencimento:</label>
+            <input
+              type="text"
+              id="editRequestDate"
+              name="editRequestDate"
+              readonly
+            />
+          </div>
+          <div class="campo-edicao">
+            <label for="editDueDate">Data de Instalação:</label>
+            <input type="text" id="editDueDate" name="editDueDate" required />
+          </div>
+          <div class="campo-edicao">
+            <label for="editAttendant">Atendente:</label>
+            <input
+              type="text"
+              id="editAttendant"
+              name="editAttendant"
+              readonly
+            />
+          </div>
+          <div class="campo-edicao">
+            <label for="editObservation">Observação:</label>
+            <textarea
+              id="editObservation"
+              name="editObservation"
+              rows="3"
+            ></textarea>
+          </div>
+        </div>
+        <div class="botoes-edicao">
+          <button type="submit" id="btnSalvarEdicao" class="btn-salvar-edicao">
+            <i class="fas fa-save"></i> Salvar Alterações
+          </button>
+          <button
+            type="button"
+            id="btnCancelarEdicao"
+            class="btn-cancelar-edicao"
+          >
+            <i class="fas fa-times"></i> Cancelar
+          </button>
+        </div>
+        <div id="msgEdicao" class="msg-edicao"></div>
+      </div>
+    </form>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/configuracoes.js') }}"></script>
+{% endblock %}

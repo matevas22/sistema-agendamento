@@ -1,0 +1,54 @@
+{
+  "limite_diario": {
+    "Caxias": {
+      "dom": 0,
+      "qua": 20,
+      "qui": 20,
+      "sab": 5,
+      "seg": 20,
+      "sex": 20,
+      "ter": 20
+    },
+    "Vilar": {
+      "dom": 0,
+      "qua": 20,
+      "qui": 20,
+      "sab": 5,
+      "seg": 20,
+      "sex": 20,
+      "ter": 20
+    }
+  },
+  "limites_personalizados": {},
+  "feriados": [
+    "2025-12-25",
+    "2026-01-01",
+    "2025-11-02",
+    "2025-10-12",
+    "2025-09-07",
+    "2025-11-15",
+    "2025-11-20"
+  ],
+  "planos": [
+    "20MB",
+    "50MB",
+    "70MB",
+    "90MB",
+    "300MB",
+    "500MB",
+    "600MB",
+    "800MB",
+    "1000MB",
+    "600MB PRÉ-PAGO",
+    "300MB + Telefonia",
+    "500MB + Telefonia",
+    "600MB + Telefonia",
+    "800MB + Telefonia",
+    "1000MB + Telefonia",
+    "Telefonia",
+    "30MB FUNCIONARIO",
+    "10MB",
+    "300MB Empresarial",
+    "600MB Empresarial"
+  ]
+}

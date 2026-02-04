@@ -1,0 +1,175 @@
+{% extends "base.html" %} 
+{% block title %}Instalações{% endblock %} 
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/view_installations.css') }}">
+<script>
+  // Variáveis globais para URLs
+  window.API_URLS = {
+    getInstallations: '/api/installations'
+  };
+</script>
+<div class="view-installations-container">
+  <div class="view-installations-header">
+    <h2 class="view-installations-title"><i class="fas fa-clipboard-list"></i>Instalações</h2>
+  </div>
+  <div class="view-installations-content">
+    <!-- Filtros Modernos -->
+    <div class="filters-container animate-fade-in">
+      <div class="filter-group">
+        <button
+        id="btnLimparFiltro"
+        class="btn-limpar-filtro"
+        >
+        <i class="fas fa-eraser"></i>
+        Limpar
+        </button>
+        <select id="filterFilialSelector" class="filter-select">
+          <option value="">Filtrar Filial</option>
+          <option value="Caxias">Caxias</option>
+          <option value="Vilar">Vilar</option>
+          <option value="Outra">Outra</option>
+        </select>
+      </div>
+      <a
+      href="{{ url_for('add_installation') }}"
+      class="btn-novo-servico"
+      >
+      <i class="fas fa-plus"></i> Novo Serviço
+      </a>
+    </div>
+    <div class="table-container">
+      <table class="installations-table animate-fade-in">
+      <thead>
+        <tr class="table-header-row">
+        <th class="table-header-cell" id="id-cliente">
+          <i class="fas fa-id-card icon-orange"></i> ID Cliente
+          <input type="text" id="filterColClientId" class="filter-input" placeholder="Filtrar..." />
+        </th>
+        <th class="table-header-cell">
+          <i class="fas fa-user icon-blue"></i> Nome Cliente
+          <input type="text" id="filterColClientName" class="filter-input" placeholder="Filtrar..." />
+        </th>
+        <th class="table-header-cell" id="id-servico">
+          <i class="fas fa-network-wired icon-orange"></i> Serviço
+        </th>
+        <th class="table-header-cell">
+          <i class="fas fa-box icon-blue"></i> Plano
+          <input type="text" id="filterColPlan" class="filter-input" placeholder="Filtrar..." />
+        </th>
+        <th class="table-header-cell">
+          <i class="fas fa-building icon-orange"></i> Filial
+          <input type="text" id="filterColFilial" class="filter-input" placeholder="Filtrar..." />
+        </th>
+        <th class="table-header-cell" id="id-agendamento">
+          <i class="fas fa-calendar-alt icon-orange"></i> Agendamento
+          <input type="text" id="filterColDueDate" class="filter-input" placeholder="Filtrar..." />
+        </th>
+        <th class="table-header-cell" id="id-vencimento">
+          <i class="fas fa-calendar-check icon-blue"></i> Vencimento
+          <input type="text" id="filterColRequestDate" class="filter-input" placeholder="Filtrar..." />
+        </th>
+        <th class="table-header-cell">
+          <i class="fas fa-user-tie icon-orange"></i> Atendente
+          <input type="text" id="filterColAttendant" class="filter-input" placeholder="Filtrar..." />
+        </th>
+        <th class="table-header-cell" id="id-turno">
+          <i class="fas fa-clock icon-blue"></i> Turno
+        </th>
+        <th class="table-header-cell" id="id-observacao">
+          <i class="fas fa-sticky-note icon-blue"></i> Observação
+        </th>
+        <th class="table-header-cell">
+          <i class="fas fa-cogs icon-orange"></i> Ações
+        </th>
+          </tr>
+        </thead>
+        <tbody id="installationsTable" class="table-body">
+          <!-- Table rows will be populated by JavaScript -->
+        </tbody>
+      </table>
+      <!-- PAGINATION CONTROLS -->
+      <div id="paginationInfo" class="pagination-info"></div>
+      <div id="paginationControls" class="pagination-controls"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Edição Rápida -->
+<div id="editInstallationModal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fas fa-edit"></i> Editar Serviço</h3>
+      <button class="modal-close" onclick="closeEditModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="editInstallationForm">
+        <input type="hidden" id="editInstallationId" name="id">
+        
+                 <!-- Campos somente leitura -->
+         <div class="form-group">
+           <label for="editClientId">ID do Cliente:</label>
+           <input type="text" id="editClientId" name="clientId" readonly>
+         </div>
+         
+         <div class="form-group">
+           <label for="editClientName">Nome do Cliente:</label>
+           <input type="text" id="editClientName" name="clientName" readonly>
+         </div>
+         
+         <div class="form-group">
+           <label for="editInstallationType">Tipo de Serviço:</label>
+           <input type="text" id="editInstallationType" name="installationType" readonly>
+         </div>
+         
+         <div class="form-group">
+           <label for="editAttendant">Atendente:</label>
+           <input type="text" id="editAttendant" name="attendant" readonly>
+         </div>
+         
+         <div class="form-group">
+           <label for="editTurno">Turno Preferencial:</label>
+           <input type="text" id="editTurno" name="turno_preferencial" readonly>
+         </div>
+         
+                   <!-- Campos editáveis -->
+          <div class="form-group">
+            <label for="editDueDate">Data de Agendamento:</label>
+            <div class="field-container-flex">
+              <input
+                type="text"
+                id="editDueDate"
+                name="dueDate"
+                class="form-input flatpickr-input"
+                placeholder="Selecione a data"
+                required
+                readonly
+              />
+              <div class="select-arrow">
+                <i class="fas fa-calendar-alt"></i>
+              </div>
+            </div>
+          </div>
+         
+         <div class="form-group">
+           <label for="editObservation">Observação:</label>
+           <textarea id="editObservation" name="observation" rows="4" placeholder="Digite a observação..."></textarea>
+         </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn-salvar">
+            <i class="fas fa-save"></i> Salvar Alterações
+          </button>
+          <button type="button" class="btn-cancelar" onclick="closeEditModal()">
+            <i class="fas fa-times"></i> Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+<script src="{{ url_for('static', filename='js/view_installations.js') }}"></script>
+{% endblock %}

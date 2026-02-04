@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Trocar Senha Obrigatória{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/trocar_senha_primeiro.css') }}">
+<div class="redefinir-container">
+  <div class="redefinir-box">
+    <h2 class="redefinir-title">Troca de Senha Obrigatória</h2>
+    <p class="redefinir-desc">Por segurança, você deve definir uma nova senha antes de acessar o sistema.</p>
+    <form method="POST" id="trocarSenhaPrimeiroForm">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <div class="form-group">
+        <label for="senha">Nova Senha</label>
+        <input type="password" id="senha" name="senha" required minlength="6" class="form-input" placeholder="Digite a nova senha" />
+      </div>
+      <div class="form-group">
+        <label for="confirma">Confirme a Nova Senha</label>
+        <input type="password" id="confirma" name="confirma" required minlength="6" class="form-input" placeholder="Confirme a nova senha" />
+      </div>
+      <button type="submit" class="btn-redefinir">Trocar Senha</button>
+    </form>
+    {% if erro %}
+      <div class="erro-msg" style="color: #dc2626; margin-bottom: 1rem;">{{ erro }}</div>
+    {% endif %}
+    {% if sucesso %}
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      <script>
+        Swal.fire({
+          icon: 'success',
+          title: 'Senha alterada com sucesso!',
+          text: 'Você será redirecionado para o painel.',
+          confirmButtonText: 'OK',
+          timer: 2000,
+          timerProgressBar: true
+        }).then(() => {
+          window.location.href = '/dashboard';
+        });
+      </script>
+    {% endif %}
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/trocar_senha_primeiro.js') }}"></script>
+{% endblock %}

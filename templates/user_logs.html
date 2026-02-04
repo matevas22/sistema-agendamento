@@ -1,0 +1,606 @@
+{% extends "base.html" %}
+{% block title %}Logs de Usuários{% endblock %}
+{% block content %}
+
+<div class="text-3xl font-bold text-indigo-700 mb-4 flex items-center gap-2">
+  <i class="fas fa-clipboard-list"></i>
+  Logs de Usuários
+</div>
+
+<!-- FILTRO -->
+<form method="get" class="mb-8 bg-gradient-to-r from-indigo-50 via-white to-indigo-100 p-6 rounded-2xl shadow-lg animate-fade-in border border-indigo-100">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
+    <!-- Filtro por Usuário (Select) -->
+    <div class="flex flex-col gap-1">
+      <label for="usuario_id" class="text-sm font-semibold text-indigo-700 flex items-center gap-2">
+        <span class="bg-indigo-100 p-2 rounded-full shadow-sm">
+          <i class="fas fa-user text-indigo-400"></i>
+        </span>
+        Usuário (Selecionar)
+      </label>
+      <select
+        id="usuario_id"
+        name="usuario_id"
+        class="mt-1 block w-full rounded-xl border border-indigo-200 bg-white/80 shadow focus:border-indigo-400 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 px-4 py-2 text-indigo-800 transition-all duration-200 outline-none hover:shadow-md"
+      >
+        <option value="">Todos os usuários</option>
+        {% for usuario in usuarios %}
+        <option value="{{ usuario.id }}" {% if usuario_id == usuario.id|string %}selected{% endif %}>
+          {{ usuario.name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Filtro por Nome de Usuário (Texto) -->
+    <div class="flex flex-col gap-1">
+      <label for="usuario" class="text-sm font-semibold text-indigo-700 flex items-center gap-2">
+        <span class="bg-purple-100 p-2 rounded-full shadow-sm">
+          <i class="fas fa-user-edit text-purple-400"></i>
+        </span>
+        Usuário (Buscar)
+      </label>
+      <input
+        type="text"
+        id="usuario"
+        name="usuario"
+        value="{{ usuario_nome }}"
+        placeholder="Digite o nome"
+        class="mt-1 block w-full rounded-xl border border-purple-200 bg-white/80 shadow focus:border-purple-400 focus:ring focus:ring-purple-200 focus:ring-opacity-50 px-4 py-2 text-indigo-800 transition-all duration-200 outline-none hover:shadow-md"
+      />
+    </div>
+
+    <!-- Filtro por Tipo de Ação -->
+    <div class="flex flex-col gap-1">
+      <label for="tipo_acao" class="text-sm font-semibold text-indigo-700 flex items-center gap-2">
+        <span class="bg-blue-100 p-2 rounded-full shadow-sm">
+          <i class="fas fa-tasks text-blue-400"></i>
+        </span>
+        Tipo de Ação
+      </label>
+      <select
+        id="tipo_acao"
+        name="tipo_acao"
+        class="mt-1 block w-full rounded-xl border border-blue-200 bg-white/80 shadow focus:border-blue-400 focus:ring focus:ring-blue-200 focus:ring-opacity-50 px-4 py-2 text-indigo-800 transition-all duration-200 outline-none hover:shadow-md"
+      >
+        <option value="">Todas as ações</option>
+        <option value="login" {% if tipo_acao == 'login' %}selected{% endif %}>Login</option>
+        <option value="logout" {% if tipo_acao == 'logout' %}selected{% endif %}>Logout</option>
+        <option value="instalação" {% if tipo_acao == 'instalação' %}selected{% endif %}>Instalações</option>
+        <option value="usuário" {% if tipo_acao == 'usuário' %}selected{% endif %}>Usuários</option>
+        <option value="senha" {% if tipo_acao == 'senha' %}selected{% endif %}>Senhas</option>
+        <option value="configuração" {% if tipo_acao == 'configuração' %}selected{% endif %}>Configurações</option>
+      </select>
+    </div>
+
+    <!-- Filtro por Palavra-chave -->
+    <div class="flex flex-col gap-1">
+      <label for="palavra_chave" class="text-sm font-semibold text-indigo-700 flex items-center gap-2">
+        <span class="bg-yellow-100 p-2 rounded-full shadow-sm">
+          <i class="fas fa-search text-yellow-400"></i>
+        </span>
+        Palavra-chave
+      </label>
+      <input
+        type="text"
+        id="palavra_chave"
+        name="palavra_chave"
+        value="{{ palavra_chave }}"
+        placeholder="Buscar na ação"
+        class="mt-1 block w-full rounded-xl border border-yellow-200 bg-white/80 shadow focus:border-yellow-400 focus:ring focus:ring-yellow-200 focus:ring-opacity-50 px-4 py-2 text-indigo-800 transition-all duration-200 outline-none hover:shadow-md"
+      />
+    </div>
+
+    <!-- Filtro por Data Específica -->
+    <div class="flex flex-col gap-1">
+      <label for="data" class="text-sm font-semibold text-indigo-700 flex items-center gap-2">
+        <span class="bg-green-100 p-2 rounded-full shadow-sm">
+          <i class="fas fa-calendar-day text-green-400"></i>
+        </span>
+        Data Específica
+      </label>
+      <input
+        type="date"
+        id="data"
+        name="data"
+        value="{{ data_especifica }}"
+        class="mt-1 block w-full rounded-xl border border-green-200 bg-white/80 shadow focus:border-green-400 focus:ring focus:ring-green-200 focus:ring-opacity-50 px-4 py-2 text-indigo-800 transition-all duration-200 outline-none hover:shadow-md"
+      />
+    </div>
+
+    <!-- Filtro por Data Início -->
+    <div class="flex flex-col gap-1">
+      <label for="data_inicio" class="text-sm font-semibold text-indigo-700 flex items-center gap-2">
+        <span class="bg-teal-100 p-2 rounded-full shadow-sm">
+          <i class="fas fa-calendar-alt text-teal-400"></i>
+        </span>
+        Data Início
+      </label>
+      <input
+        type="date"
+        id="data_inicio"
+        name="data_inicio"
+        value="{{ data_inicio }}"
+        class="mt-1 block w-full rounded-xl border border-teal-200 bg-white/80 shadow focus:border-teal-400 focus:ring focus:ring-teal-200 focus:ring-opacity-50 px-4 py-2 text-indigo-800 transition-all duration-200 outline-none hover:shadow-md"
+      />
+    </div>
+
+    <!-- Filtro por Data Fim -->
+    <div class="flex flex-col gap-1">
+      <label for="data_fim" class="text-sm font-semibold text-indigo-700 flex items-center gap-2">
+        <span class="bg-red-100 p-2 rounded-full shadow-sm">
+          <i class="fas fa-calendar-check text-red-400"></i>
+        </span>
+        Data Fim
+      </label>
+      <input
+        type="date"
+        id="data_fim"
+        name="data_fim"
+        value="{{ data_fim }}"
+        class="mt-1 block w-full rounded-xl border border-red-200 bg-white/80 shadow focus:border-red-400 focus:ring focus:ring-red-200 focus:ring-opacity-50 px-4 py-2 text-indigo-800 transition-all duration-200 outline-none hover:shadow-md"
+      />
+    </div>
+  </div>
+
+  <!-- Botões de Ação -->
+  <div class="flex gap-3 mt-4">
+    <button
+      type="submit"
+      class="flex items-center gap-2 bg-gradient-to-r from-indigo-400 to-indigo-600 text-white font-semibold px-6 py-2.5 rounded-xl shadow hover:from-indigo-500 hover:to-indigo-700 transition-all duration-200 focus:ring-2 focus:ring-indigo-300 focus:outline-none animate-bounce-slow"
+    >
+      <i class="fas fa-search text-white/80"></i>
+      Filtrar
+    </button>
+    <a
+      href="{{ url_for('user_logs') }}"
+      class="flex items-center gap-2 bg-gradient-to-r from-gray-200 to-gray-300 text-gray-700 font-semibold px-6 py-2.5 rounded-xl shadow hover:from-gray-300 hover:to-gray-400 transition-all duration-200 focus:ring-2 focus:ring-gray-200 focus:outline-none"
+      title="Limpar filtros"
+    >
+      <i class="fas fa-sync-alt text-gray-400"></i>
+      Limpar
+    </a>
+  </div>
+</form>
+
+<style>
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-12px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+.animate-fade-in {
+  animation: fade-in 0.7s cubic-bezier(.4,0,.2,1);
+}
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0);}
+  50% { transform: translateY(-4px);}
+}
+.animate-bounce-slow {
+  animation: bounce-slow 1.8s infinite;
+}
+</style>
+
+<!-- TABELA -->
+<div class="bg-white rounded-lg shadow-lg p-6">
+  {% if not tem_filtro %}
+  <!-- Mensagem quando não há filtros -->
+  <div class="py-16 text-center">
+    <div class="flex flex-col items-center gap-4">
+      <div class="bg-indigo-100 rounded-full p-6 shadow-lg">
+        <i class="fas fa-filter text-6xl text-indigo-400 animate-pulse"></i>
+      </div>
+      <h3 class="text-2xl font-bold text-indigo-700">Aplique filtros para visualizar os logs</h3>
+      <p class="text-gray-600 max-w-md">
+        Use os filtros acima para buscar logs específicos. Os logs só serão exibidos quando você aplicar pelo menos um filtro.
+      </p>
+    </div>
+  </div>
+  {% elif logs %}
+  <!-- Tabela de logs -->
+  <div class="mb-4 flex items-center justify-between">
+    <div class="text-sm text-gray-600">
+      <i class="fas fa-info-circle text-indigo-400"></i>
+      <span class="ml-2">Encontrados <strong id="total-logs">{{ logs|length }}</strong> log(s)</span>
+    </div>
+  </div>
+  <div class="table-container" style="background:#fff;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,.05);overflow:hidden;margin:1rem 0;">
+    <table id="logTable" style="width:100%;border-collapse:collapse;">
+      <thead style="background:#2c3e50;color:#fff;position:sticky;top:0;z-index:10;">
+        <tr>
+          <th style="padding:12px 14px;text-align:left;border-bottom:1px solid #eee;font-weight:600;text-transform:uppercase;font-size:.85rem;letter-spacing:.5px;">Usuário</th>
+          <th style="padding:12px 14px;text-align:left;border-bottom:1px solid #eee;font-weight:600;text-transform:uppercase;font-size:.85rem;letter-spacing:.5px;">Data</th>
+          <th style="padding:12px 14px;text-align:left;border-bottom:1px solid #eee;font-weight:600;text-transform:uppercase;font-size:.85rem;letter-spacing:.5px;">Ação</th>
+          <th style="padding:12px 14px;text-align:left;border-bottom:1px solid #eee;font-weight:600;text-transform:uppercase;font-size:.85rem;letter-spacing:.5px;">Mensagem</th>
+        </tr>
+      </thead>
+      <tbody id="logTableBody" style="background:#fff;">
+        {% for log in logs %}
+        {% set action = log['action'].lower() %}
+        {% set action_type = 'info' %}
+        {% set action_label = log['action'] %}
+        {% if 'login' in action %}
+          {% set action_type = 'info' %}
+          {% set action_label = 'Login' %}
+        {% elif 'logout' in action %}
+          {% set action_type = 'warning' %}
+          {% set action_label = 'Logout' %}
+        {% elif 'adicionou instalação' in action %}
+          {% set action_type = 'info' %}
+          {% set action_label = 'Adicionou Instalação' %}
+        {% elif 'instalação excluída' in action or 'excluiu instalação' in action %}
+          {% set action_type = 'error' %}
+          {% set action_label = 'Instalação Excluída' %}
+        {% elif 'serviço editado' in action %}
+          {% set action_type = 'info' %}
+          {% set action_label = 'Serviço Editado' %}
+        {% elif 'adicionou usuário' in action %}
+          {% set action_type = 'info' %}
+          {% set action_label = 'Adicionou Usuário' %}
+        {% elif 'usuário excluído' in action or 'excluiu o usuário' in action %}
+          {% set action_type = 'error' %}
+          {% set action_label = 'Usuário Excluído' %}
+        {% elif 'edited user' in action %}
+          {% set action_type = 'info' %}
+          {% set action_label = 'Editou Usuário' %}
+        {% elif 'changed password' in action or 'senha' in action %}
+          {% set action_type = 'warning' %}
+          {% set action_label = 'Alterou Senha' %}
+        {% elif 'limite' in action or 'configuração' in action %}
+          {% set action_type = 'info' %}
+          {% set action_label = 'Configuração' %}
+        {% endif %}
+        <tr data-level="{{ action_type|upper }}" data-log-id="{{ log['id'] }}" style="border-bottom:1px solid #eee;cursor:pointer;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='#fff'">
+          <td style="padding:12px 14px;text-align:left;">{{ log['name'] }}</td>
+          <td style="padding:12px 14px;text-align:left;font-family:monospace;font-size:.9rem;">{{ log['timestamp'] }}</td>
+          <td style="padding:12px 14px;text-align:left;">{{ action_label }}</td>
+          <td style="padding:12px 14px;text-align:left;">
+            <span class="badge badge-{{ action_type }}">{{ action_type|upper }}</span>
+            {% if ' | ' in log['action'] %}
+              {% set detalhes = log['action'].split(' | ') %}
+              {% if detalhes|length > 1 %}
+                <span style="margin-left:8px;color:#666;font-size:.9rem;">{{ detalhes[1:]|join(' | ') }}</span>
+              {% endif %}
+            {% else %}
+              <span style="margin-left:8px;color:#666;font-size:.9rem;">{{ log['action'] }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  
+  {% if logs|length > 10 %}
+  <!-- Paginação -->
+  <div class="pagination" style="display:flex;justify-content:center;align-items:center;gap:1rem;margin-top:1rem;">
+    <button id="prevPage" style="padding:8px 14px;border:1px solid #ddd;background:#fff;border-radius:6px;cursor:pointer;font-size:.9rem;transition:all .2s;" onmouseover="if(!this.disabled){this.style.background='#3498db';this.style.color='#fff';this.style.borderColor='#3498db'}" onmouseout="if(!this.disabled){this.style.background='#fff';this.style.color='';this.style.borderColor='#ddd'}">Anterior</button>
+    <span id="pageInfo" style="font-weight:500;color:#2c3e50;">Página 1 de 1</span>
+    <button id="nextPage" style="padding:8px 14px;border:1px solid #ddd;background:#fff;border-radius:6px;cursor:pointer;font-size:.9rem;transition:all .2s;" onmouseover="if(!this.disabled){this.style.background='#3498db';this.style.color='#fff';this.style.borderColor='#3498db'}" onmouseout="if(!this.disabled){this.style.background='#fff';this.style.color='';this.style.borderColor='#ddd'}">Próxima</button>
+  </div>
+  {% endif %}
+  {% else %}
+  <!-- Mensagem quando não há resultados -->
+  <div class="py-12 text-center text-gray-500">
+    <div class="flex flex-col items-center gap-3">
+      <i class="fas fa-search text-6xl mb-2 text-indigo-200 animate-pulse"></i>
+      <p class="text-lg font-medium">Nenhum log encontrado com os filtros aplicados.</p>
+      <p class="text-sm text-gray-400">Tente ajustar os filtros ou limpar para uma nova busca.</p>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Modal de Detalhes do Log -->
+<div id="logModal" style="display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);">
+  <div style="background-color:#fff;margin:5% auto;padding:20px;border-radius:10px;width:90%;max-width:600px;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:2px solid #2c3e50;padding-bottom:10px;">
+      <h2 style="margin:0;color:#2c3e50;font-size:1.5rem;">
+        <i class="fas fa-info-circle" style="margin-right:8px;"></i>
+        Detalhes do Log
+      </h2>
+      <button id="closeModal" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999;" onmouseover="this.style.color='#333'" onmouseout="this.style.color='#999'">&times;</button>
+    </div>
+    <div id="modalContent" style="line-height:1.8;">
+      <div style="text-align:center;padding:20px;">
+        <i class="fas fa-spinner fa-spin" style="font-size:24px;color:#3498db;"></i>
+        <p>Carregando detalhes...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes spin-slow {
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
+}
+.animate-spin-slow {
+  animation: spin-slow 2.5s linear infinite;
+}
+@keyframes fade {
+  0%,100% { opacity: 1;}
+  50% { opacity: 0.5;}
+}
+.animate-fade {
+  animation: fade 1.5s ease-in-out infinite;
+}
+/* Responsivo */
+@media(max-width:768px){
+  .table-container{overflow-x:auto;}
+  #logTable{min-width:800px;}
+}
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.badge-info {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+.badge-warning {
+  background: #fff3cd;
+  color: #856404;
+}
+.badge-error {
+  background: #f8d7da;
+  color: #721c24;
+}
+.badge-debug {
+  background: #e2e3e5;
+  color: #383d41;
+}
+</style>
+
+<script>
+/* ---------- DADOS & VARIÁVEIS ---------- */
+const tbody = document.querySelector('#logTableBody');
+const allRows = Array.from(tbody ? tbody.querySelectorAll('tr') : []);
+const rowsPerPage = 10;
+let currentPage = 1;
+let filteredRows = [...allRows];
+
+const prevBtn = document.getElementById('prevPage');
+const nextBtn = document.getElementById('nextPage');
+const pageInfo = document.getElementById('pageInfo');
+
+
+function displayPage(page){
+  if (!tbody || allRows.length === 0) return;
+  
+  const start = (page-1)*rowsPerPage;
+  const end   = start + rowsPerPage;
+  const pageRows = filteredRows.slice(start, end);
+
+  tbody.innerHTML = '';
+  pageRows.forEach(r => tbody.appendChild(r.cloneNode(true)));
+
+  const totalPages = Math.ceil(filteredRows.length/rowsPerPage) || 1;
+  if (pageInfo) {
+    pageInfo.textContent = `Página ${page} de ${totalPages}`;
+  }
+  if (prevBtn) {
+    prevBtn.disabled = page===1;
+  }
+  if (nextBtn) {
+    nextBtn.disabled = page>=totalPages;
+  }
+  currentPage = page;
+}
+
+
+if (prevBtn) {
+  prevBtn.addEventListener('click',()=>{ if(currentPage>1) displayPage(currentPage-1); });
+}
+if (nextBtn) {
+  nextBtn.addEventListener('click',()=>{
+    const tot = Math.ceil(filteredRows.length/rowsPerPage);
+    if(currentPage<tot) displayPage(currentPage+1);
+  });
+}
+
+/* ---------- INICIALIZAÇÃO ---------- */
+if (allRows.length > 0) {
+  displayPage(1);
+}
+
+/* ---------- MODAL DE DETALHES DO LOG ---------- */
+let modal, modalContent, closeModal;
+
+// Função para parsear User-Agent
+function parseUserAgent(userAgent) {
+  if (!userAgent || userAgent === 'N/A') {
+    return { browser: 'N/A', os: 'N/A' };
+  }
+  
+  let browser = 'Desconhecido';
+  let os = 'Desconhecido';
+  
+  // Detectar navegador
+  if (userAgent.indexOf('Chrome') > -1 && userAgent.indexOf('Edg') === -1) {
+    browser = 'Chrome';
+  } else if (userAgent.indexOf('Firefox') > -1) {
+    browser = 'Firefox';
+  } else if (userAgent.indexOf('Safari') > -1 && userAgent.indexOf('Chrome') === -1) {
+    browser = 'Safari';
+  } else if (userAgent.indexOf('Edg') > -1) {
+    browser = 'Edge';
+  } else if (userAgent.indexOf('Opera') > -1 || userAgent.indexOf('OPR') > -1) {
+    browser = 'Opera';
+  } else if (userAgent.indexOf('MSIE') > -1 || userAgent.indexOf('Trident') > -1) {
+    browser = 'Internet Explorer';
+  }
+  
+  // Detectar sistema operacional
+  if (userAgent.indexOf('Windows NT 10.0') > -1) {
+    os = 'Windows 10/11';
+  } else if (userAgent.indexOf('Windows NT 6.3') > -1) {
+    os = 'Windows 8.1';
+  } else if (userAgent.indexOf('Windows NT 6.2') > -1) {
+    os = 'Windows 8';
+  } else if (userAgent.indexOf('Windows NT 6.1') > -1) {
+    os = 'Windows 7';
+  } else if (userAgent.indexOf('Mac OS X') > -1) {
+    os = 'macOS';
+  } else if (userAgent.indexOf('Linux') > -1) {
+    os = 'Linux';
+  } else if (userAgent.indexOf('Android') > -1) {
+    os = 'Android';
+  } else if (userAgent.indexOf('iOS') > -1 || userAgent.indexOf('iPhone') > -1 || userAgent.indexOf('iPad') > -1) {
+    os = 'iOS';
+  }
+  
+  return { browser, os };
+}
+
+// Função para abrir modal com detalhes do log
+function openLogModal(logId) {
+  if (!modal || !modalContent) return;
+  
+  modal.style.display = 'block';
+  modalContent.innerHTML = `
+    <div style="text-align:center;padding:20px;">
+      <i class="fas fa-spinner fa-spin" style="font-size:24px;color:#3498db;"></i>
+      <p>Carregando detalhes...</p>
+    </div>
+  `;
+  
+  fetch(`/api/log_details/${logId}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const log = data.log;
+        const { browser, os } = parseUserAgent(log.user_agent);
+        
+        modalContent.innerHTML = `
+          <div style="display:grid;gap:15px;">
+            <div style="padding:12px;background:#f8f9fa;border-radius:6px;border-left:4px solid #3498db;">
+              <strong style="color:#2c3e50;display:block;margin-bottom:5px;">
+                <i class="fas fa-user" style="margin-right:8px;"></i>Usuário
+              </strong>
+              <span style="color:#555;">${log.user_name}</span>
+            </div>
+            
+            <div style="padding:12px;background:#f8f9fa;border-radius:6px;border-left:4px solid #27ae60;">
+              <strong style="color:#2c3e50;display:block;margin-bottom:5px;">
+                <i class="fas fa-clock" style="margin-right:8px;"></i>Data/Hora
+              </strong>
+              <span style="color:#555;font-family:monospace;">${log.timestamp}</span>
+            </div>
+            
+            <div style="padding:12px;background:#f8f9fa;border-radius:6px;border-left:4px solid #e74c3c;">
+              <strong style="color:#2c3e50;display:block;margin-bottom:5px;">
+                <i class="fas fa-network-wired" style="margin-right:8px;"></i>Endereço IP
+              </strong>
+              <span style="color:#555;font-family:monospace;">${log.ip_address}</span>
+            </div>
+            
+            <div style="padding:12px;background:#f8f9fa;border-radius:6px;border-left:4px solid #9b59b6;">
+              <strong style="color:#2c3e50;display:block;margin-bottom:5px;">
+                <i class="fas fa-globe" style="margin-right:8px;"></i>Navegador
+              </strong>
+              <span style="color:#555;">${browser}</span>
+            </div>
+            
+            <div style="padding:12px;background:#f8f9fa;border-radius:6px;border-left:4px solid #f39c12;">
+              <strong style="color:#2c3e50;display:block;margin-bottom:5px;">
+                <i class="fas fa-desktop" style="margin-right:8px;"></i>Sistema Operacional
+              </strong>
+              <span style="color:#555;">${os}</span>
+            </div>
+            
+            <div style="padding:12px;background:#f8f9fa;border-radius:6px;border-left:4px solid #16a085;">
+              <strong style="color:#2c3e50;display:block;margin-bottom:5px;">
+                <i class="fas fa-comment-alt" style="margin-right:8px;"></i>Mensagem
+              </strong>
+              <div style="color:#555;margin-top:8px;padding:10px;background:#fff;border-radius:4px;border:1px solid #ddd;white-space:pre-wrap;word-wrap:break-word;">${log.action}</div>
+            </div>
+          </div>
+        `;
+      } else {
+        modalContent.innerHTML = `
+          <div style="text-align:center;padding:20px;color:#e74c3c;">
+            <i class="fas fa-exclamation-triangle" style="font-size:24px;margin-bottom:10px;"></i>
+            <p>Erro ao carregar detalhes do log.</p>
+            <p style="font-size:0.9rem;color:#999;">${data.message || 'Erro desconhecido'}</p>
+          </div>
+        `;
+      }
+    })
+    .catch(error => {
+      modalContent.innerHTML = `
+        <div style="text-align:center;padding:20px;color:#e74c3c;">
+          <i class="fas fa-exclamation-triangle" style="font-size:24px;margin-bottom:10px;"></i>
+          <p>Erro ao carregar detalhes do log.</p>
+          <p style="font-size:0.9rem;color:#999;">${error.message}</p>
+        </div>
+      `;
+    });
+}
+
+// Event listener para duplo clique nas linhas da tabela
+document.addEventListener('DOMContentLoaded', function() {
+  // Inicializar referências do modal
+  modal = document.getElementById('logModal');
+  modalContent = document.getElementById('modalContent');
+  closeModal = document.getElementById('closeModal');
+  
+  // Adicionar evento de duplo clique nas linhas existentes
+  function addDoubleClickListeners() {
+    const rows = document.querySelectorAll('#logTableBody tr[data-log-id]');
+    rows.forEach(row => {
+      // Verificar se já tem listener
+      if (!row.hasAttribute('data-listener-added')) {
+        row.setAttribute('data-listener-added', 'true');
+        row.addEventListener('dblclick', function() {
+          const logId = this.getAttribute('data-log-id');
+          if (logId && modal) {
+            openLogModal(parseInt(logId));
+          }
+        });
+      }
+    });
+  }
+  
+  // Adicionar listeners iniciais
+  addDoubleClickListeners();
+  
+  // Observar mudanças no tbody (quando a paginação atualizar)
+  const observer = new MutationObserver(function(mutations) {
+    addDoubleClickListeners();
+  });
+  
+  const tbody = document.getElementById('logTableBody');
+  if (tbody) {
+    observer.observe(tbody, { childList: true, subtree: true });
+  }
+  
+  // Fechar modal ao clicar no X
+  if (closeModal) {
+    closeModal.addEventListener('click', function() {
+      if (modal) modal.style.display = 'none';
+    });
+  }
+  
+  // Fechar modal ao clicar fora dele
+  window.addEventListener('click', function(event) {
+    if (event.target === modal && modal) {
+      modal.style.display = 'none';
+    }
+  });
+  
+  // Fechar modal com ESC
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape' && modal && modal.style.display === 'block') {
+      modal.style.display = 'none';
+    }
+  });
+});
+</script>
+{% endblock %}

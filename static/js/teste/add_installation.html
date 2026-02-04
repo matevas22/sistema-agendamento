@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% block title %}Adicionar Instalação{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/add_installation.css') }}">
+<div class="add-installation-container">
+  <div class="add-installation-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="fas fa-plus-circle"></i>
+      </div>
+      <h2 class="header-title">
+        Adicionar Instalação
+      </h2>
+    </div>
+  </div>
+  <div class="form-container">
+    <form id="addInstallationForm" method="POST" action="{{ url_for('add_installation') }}" class="animate-fade-in">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <div class="form-grid">
+        <div>
+          <label for="filial" class="field-label">
+        <i class="fas fa-building"></i>
+        Filial
+          </label>
+          <div class="field-container">
+        <select
+          id="filial"
+          name="filial"
+          class="form-select"
+        >
+          <option value="">Selecione a filial</option>
+          <option value="Caxias">Caxias</option>
+          <option value="Vilar">Vilar</option>
+        </select>
+          </div>
+        </div>
+        <div>
+          <label for="clientId" class="field-label">
+        <i class="fas fa-id-card"></i>
+        ID Cliente
+          </label>
+          <div class="field-container">
+        <input
+          type="text"
+          id="clientId"
+          name="clientId"
+          class="form-input"
+          placeholder="Digite o ID do cliente"
+          required
+        />
+          </div>
+        </div>
+        <div>
+          <label for="clientName" class="field-label">
+        <i class="fas fa-user"></i>
+        Nome do Cliente
+          </label>
+          <div class="field-container">
+        <input
+          type="text"
+          id="clientName"
+          name="clientName"
+          class="form-input"
+          placeholder="Digite o nome do cliente"
+          required
+        />
+          </div>
+        </div>
+        <div>
+          <label for="installationType" class="field-label">
+        <i class="fas fa-tools"></i>
+        Tipo de Serviço
+          </label>
+          <div class="field-container">
+        <select
+          id="installationType"
+          name="installationType"
+          class="form-select"
+          required
+        >
+          <option value="">Selecione</option>
+          <option value="Instalação Fibra">Instalação Fibra</option>
+          <option value="Instalação Utp">Instalação utp</option>
+          <option value="Migração">Migração</option>
+          <option value="Pedido de Transferência">Pedido de Transferência</option>
+          <option value="Transferência">Transferência</option>
+          <option value="Transferência de Comodo">Transferência de Comodo</option>
+          <option value="Transferência Fibra">Transferência Fibra</option>
+          <option value="Transferência Utp">Transferência Utp</option>
+          <option value="Transferência + troc. titularidade">Transferência + troc. titularidade</option>
+          <option value="Troca de cômodo">Troca de cômodo</option>
+          <option value="Extenção de Fibra">Extenção de Fibra</option>
+          <option value="Outra instalação fibra">Outra instalação fibra</option>
+          <option value="Outra instalação Utp">Outra instalação Utp</option>
+        </select>
+          </div>
+        </div>
+        <div>
+          <label for="plan" class="field-label">
+            <i class="fas fa-signal"></i>
+            Plano
+          </label>
+          <div class="field-container">
+            <select
+              id="plan"
+              name="plan"
+              class="form-select form-select-custom"
+              required
+              onfocus="this.parentNode.classList.add('z-20')"
+              onblur="this.parentNode.classList.remove('z-20')"
+            >
+              <option value="">Selecione</option>
+              <option value="20MB">20MB</option>
+              <option value="50MB">50MB</option>
+              <option value="70MB">70MB</option>
+              <option value="90MB">90MB</option>
+              <option value="300MB">300MB</option>
+              <option value="500MB">500MB</option>
+              <option value="600MB">600MB</option>
+              <option value="800MB">800MB</option>
+              <option value="1000MB">1000MB</option>
+              <option value="600MB PRÉ-PAGO">600MB PRÉ-PAGO</option>
+              <option value="300MB + Telefonia">300MB + Telefonia</option>
+              <option value="500MB + Telefonia">500MB + Telefonia</option>
+              <option value="600MB + Telefonia">600MB + Telefonia</option>
+              <option value="800MB + Telefonia">800MB + Telefonia</option>
+              <option value="1000MB + Telefonia">1000MB + Telefonia</option>
+              <option value="Telefonia">Telefonia</option>
+              <option value="30MB FUNCIONARIO">30MB FUNCIONARIO</option>
+            </select>
+            <div class="select-arrow">
+              <i class="fas fa-chevron-down"></i>
+            </div>
+          </div>
+        </div>
+        <div>
+          <label for="requestDate" class="field-label">
+        <i class="fas fa-calendar-day"></i>
+        Vencimento para o dia
+          </label>
+          <div class="field-container">
+        <select
+          id="requestDate"
+          name="requestDate"
+          class="form-select"
+        >
+          <option value="">Selecione o dia</option>
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="15">15</option>
+        </select>
+          </div>
+        </div>
+        <div>
+          <label for="dueDate" class="field-label">
+            <i class="fas fa-calendar-check"></i>
+            Agendamento
+          </label>
+          <div class="field-container-flex">
+            <input
+              type="text"
+              id="dueDate"
+              name="dueDate"
+              class="form-input flatpickr-input"
+              placeholder="Selecione a data"
+              required
+              readonly
+            />
+            <div class="select-arrow">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+          </div>
+        </div>
+                 <div>
+           <label for="attendant" class="field-label">
+         <i class="fas fa-headset"></i>
+         Atendente
+           </label>
+           <div class="field-container">
+         <input
+           type="text"
+           id="attendant"
+           name="attendant"
+           class="form-input"
+           placeholder="Nome do atendente"
+           value="{{ current_user_name }}"
+         />
+           </div>
+         </div>
+         <div class="turno-field-container">
+           <label for="turno_preferencial" class="field-label">
+             <i class="fas fa-clock"></i>
+             Turno Preferencial
+           </label>
+           <div class="field-container">
+             <select
+               id="turno_preferencial"
+               name="turno_preferencial"
+               class="form-select"
+             >
+               <option value="">Selecione o turno (opcional)</option>
+               <option value="Manhã">Manhã</option>
+               <option value="Tarde">Tarde</option>
+             </select>
+           </div>
+         </div>
+        <div class="form-field-full">
+          <label for="observation" class="field-label">
+        <i class="fas fa-sticky-note"></i>
+        Observação
+          </label>
+          <div class="field-container">
+        <textarea
+          id="observation"
+          name="observation"
+          rows="3"
+          class="form-textarea"
+          placeholder="Adicione uma observação (opcional)"
+        ></textarea>
+          </div>
+        </div>
+        
+            </div>
+            <div class="button-container">
+          <button
+            type="submit"
+            class="submit-button"
+          >
+            <i class="fas fa-plus-circle"></i>
+            Adicionar Serviço
+          </button>
+        </div>
+            </div>
+          <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+          <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+          <script src="https://unpkg.com/imask"></script>
+          <script src="{{ url_for('static', filename='js/add_installation.js') }}"></script>
+
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+          </form>
+          </div>
+          </div>
+{% endblock %}

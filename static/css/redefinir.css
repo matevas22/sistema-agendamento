@@ -1,0 +1,203 @@
+body {
+  background: #f8fafc;
+  font-family: 'Montserrat', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f8fafc;
+  font-family: 'Montserrat', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+.redefinir-container {
+  max-width: 353px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  padding: 27px 5px 28px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.redefinir-container h2 {
+  font-size: 2rem;
+  color: #1e293b;
+  margin-bottom: 24px;
+  font-weight: 700;
+}
+.form-group {
+  width: 100%;
+  margin-bottom: 18px;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  color: #334155;
+  font-weight: 500;
+}
+.form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s;
+  margin: auto 0;
+}
+.form-group input:focus {
+  border-color: #6366f1;
+}
+button[type="submit"] {
+  width: 100%;
+  background: #1c294c;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+button[type="submit"]:hover {
+  background: #1c294c;
+}
+#redefinir-message {
+  margin-top: 16px;
+  color: #ef4444;
+  font-size: 0.98rem;
+  text-align: center;
+}
+.voltar-login {
+  margin-top: 18px;
+  text-align: center;
+}
+.voltar-login a {
+  color: #1c294c;
+  text-decoration: none;
+  font-size: 0.98rem;
+  transition: color 0.2s;
+}
+.voltar-login a:hover {
+  color: #4f46e5;
+}
+.input-olho-group {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.input-olho-group input {
+  width: 100%;
+  padding-right: 38px;
+}
+.olho-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6366f1;
+  font-size: 1.1rem;
+  padding: 0 4px;
+  outline: none;
+}
+.olho-btn:focus {
+  outline: none;
+}
+.forca-senha {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  text-align: left;
+  color: #fff;
+  height: 22px;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-weight: 500;
+}
+.forca-senha.fraca {
+  background: #ef4444;
+}
+.forca-senha.media {
+  background: #f59e42;
+}
+.forca-senha.forte {
+  background: #22c55e;
+}
+.toggle-dark-btn {
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  background: #fff;
+  color: #1c294c;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  cursor: pointer;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  transition: background 0.2s, color 0.2s;
+}
+.toggle-dark-btn:hover {
+  background: #1c294c;
+  color: #fff;
+}
+
+body.dark {
+  background: #181a20;
+}
+body.dark .redefinir-container {
+  background: #23263a;
+  color: #f1f5f9;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+}
+body.dark .redefinir-container h2 {
+  color: #f1f5f9;
+}
+body.dark .form-group label {
+  color: #cbd5e1;
+}
+body.dark .form-group input {
+  background: #23263a;
+  color: #f1f5f9;
+  border: 1px solid #334155;
+}
+body.dark .form-group input:focus {
+  border-color: #6366f1;
+}
+body.dark button[type="submit"] {
+  background: #6366f1;
+  color: #fff;
+}
+body.dark button[type="submit"]:hover {
+  background: #4f46e5;
+}
+body.dark .voltar-login a {
+  color: #a5b4fc;
+}
+body.dark .voltar-login a:hover {
+  color: #818cf8;
+}
+body.dark .toggle-dark-btn {
+  background: #23263a;
+  color: #f1f5f9;
+}
+body.dark .toggle-dark-btn:hover {
+  background: #6366f1;
+  color: #fff;
+}

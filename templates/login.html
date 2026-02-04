@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <link
+    rel="icon"
+    href="{{ url_for('static', filename='img/netflex.png') }}"
+    type="image/x-icon"
+    />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Serviços Netflex</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/login.css') }}"
+    />
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='netflex.png') }}"
+      type="image/x-icon"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    </head>
+    <body>
+    <!-- Header -->
+    <header>
+      <div class="container">
+      <img
+        src="{{ url_for('static', filename='img/logo.png') }}"
+        alt="Logo NETFLEX"
+      />
+      <div class="text-center">
+        <h1>NETFLEX - Login</h1>
+        <p>
+        Faça login para se conectar ao agendamento de serviços
+        </p>
+      </div>
+      </div>
+    </header>
+    <!-- Espaço mínimo entre header e main -->
+    <div class="mb-1"></div>
+
+    <!-- Main Content -->
+    <main>
+      <div class="container">
+        <div class="card-container">
+          <!-- Card de Login -->
+          <div class="card login-card active" id="loginCard">
+            <h2>Login</h2>
+            <form id="loginForm">
+              <div>
+                <label for="login">Usuário/E-mail</label>
+                <input
+                  type="text"
+                  id="login"
+                  name="login"
+                  required
+                  placeholder="Digite seu usuário ou e-mail"
+                />
+              </div>
+              <div>
+                <label for="password">Senha</label>
+                <div class="input-olho-group">
+                  <input
+                    placeholder="Digite sua senha"
+                    type="password"
+                    id="password"
+                    name="password"
+                    required
+                  />
+                  <button type="button" class="olho-btn" tabindex="-1" onclick="toggleSenha('password', this)"><i class="fa fa-eye"></i></button>
+                </div>
+              </div>
+              <button type="submit">
+                <i class="fas fa-sign-in-alt"></i>
+                Entrar
+              </button>
+              <div id="login-message"></div>
+            </form>
+            <p class="text-xs">
+              Esqueceu sua senha?
+              <a href="#" id="showRecovery">Recuperar</a>
+            </p>
+          </div>
+
+          <!-- Card de Recuperação de Senha -->
+          <div class="card recovery-card" id="recoveryCard">
+            <h2>Recuperar Senha</h2>
+            <form id="recoveryForm" method="POST" action="{{ url_for('recuperar') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <div>
+                <label for="email">E-mail</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  placeholder="Digite seu e-mail"
+                />
+              </div>
+              <div class="terms-container">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="terms" name="terms" required>
+                  <span class="checkmark"></span>
+                  Você concorda com os termos?
+                </label>
+              </div>
+              <button type="submit">
+                <i class="fas fa-paper-plane"></i>
+                Enviar
+              </button>
+              <div id="recovery-message"></div>
+            </form>
+            <p class="text-xs">
+              Lembrou sua senha?
+              <a href="#" id="showLogin">Voltar ao login</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+      <p>
+      NETFLEX — Conectando Pessoas e Soluções
+      </p>
+      <p>
+      © 2024 NETFLEX. Todos os direitos reservados.
+      </p>
+      </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+  </body>
+</html>

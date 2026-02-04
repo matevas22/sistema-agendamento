@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Relatórios{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/relatorios.css') }}">
+
+<div class="relatorios-container">
+  <div class="relatorios-header">
+    <h2 class="relatorios-title">
+      <i class="fas fa-file-alt"></i> Relatórios
+    </h2>
+  </div>
+  <div class="relatorios-content">
+    <form id="filtroRelatorio" class="filtro-form">
+      <div class="filtro-group">
+        <label for="dataDia" class="filtro-label">Dia</label>
+        <input type="date" id="dataDia" name="dataDia" class="filtro-input">
+      </div>
+      <div class="filtro-group">
+        <label for="dataMes" class="filtro-label">Mês</label>
+        <input type="month" id="dataMes" name="dataMes" class="filtro-input">
+      </div>
+      <div class="filtro-group">
+        <label for="dataAno" class="filtro-label">Ano</label>
+        <input type="number" id="dataAno" name="dataAno" min="2000" max="2100" placeholder="Ano" class="filtro-input">
+      </div>
+      <button type="button" id="btnFiltrarRelatorio" class="btn-filtrar">
+        <i class="fas fa-search"></i> Filtrar
+      </button>
+      <button type="button" id="btnLimparRelatorio" class="btn-limpar">
+        <i class="fas fa-eraser"></i> Limpar
+      </button>
+    </form>
+    
+    <div class="acoes-container">
+      <button id="btnImprimir" class="btn-imprimir" title="Imprimir selecionados">
+        <i class="fas fa-print"></i>
+        Imprimir Selecionados
+      </button>
+      <button id="exportarPDF" class="btn-pdf">
+        <i class="fas fa-file-pdf"></i> Exportar PDF
+      </button>
+      <button id="exportarExcel" class="btn-excel">
+        <i class="fas fa-file-excel"></i> Exportar Excel
+      </button>
+    </div>
+    
+    <div class="table-container">
+      <table id="relatorio-table" class="relatorio-table animate-fade-in">
+        <thead>
+          <tr class="table-header-row">
+            <th class="table-header-cell">
+              <input type="checkbox" id="select-all" class="checkbox-input" title="Selecionar todos" />
+            </th>
+            <th class="table-header-cell">ID Cliente</th>
+            <th class="table-header-cell">Nome Cliente</th>
+            <th class="table-header-cell">Serviço</th>
+            <th class="table-header-cell">Plano</th>
+            <th class="table-header-cell">Filial</th>
+            <th class="table-header-cell">Agendamento</th>
+            <th class="table-header-cell">Vencimento</th>
+            <th class="table-header-cell">Atendente</th>
+            <th class="table-header-cell">Turno Preferencial</th>
+            <th class="table-header-cell">Observação</th>
+          </tr>
+        </thead>
+        <tbody id="relatorioTableBody" class="table-body">
+          <!-- Linhas serão preenchidas via JavaScript -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/relatorios.js') }}"></script>
+{% endblock %} 
