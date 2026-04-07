@@ -719,6 +719,12 @@ def get_installations():
 @login_required
 def delete_installation(id):
     print(f"Attempting to delete installation ID: {id}")  # Debug
+    data = request.get_json(silent=True) or request.form
+    reason = (data.get('reason') if data else '')
+    reason = reason.strip() if isinstance(reason, str) else ''
+    if not reason:
+        return jsonify({'success': False, 'message': 'O motivo da exclusão é obrigatório.'}), 400
+
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('SELECT client_name, client_id FROM installations WHERE id = ?', (id,))
@@ -740,7 +746,7 @@ def delete_installation(id):
     log_action(
         current_user.id,
         'Instalação excluída',
-        f'Excluiu instalação do cliente: {client_name} (ID Cliente: {client_id}, ID Instalação: {id}) | Feito por: {current_user.name} (ID: {current_user.id})'
+        f'Excluiu instalação do cliente: {client_name} (ID Cliente: {client_id}, ID Instalação: {id}) | Motivo: {reason} | Feito por: {current_user.name} (ID: {current_user.id})'
     )
     return jsonify({'success': True, 'message': 'Instalação excluída com sucesso!'})
 
@@ -820,7 +826,6 @@ def get_installation_by_client_id(client_id):
 @login_required
 @csrf.exempt
 def search_installation_by_client():
-    """Pesquisa instalação por ID do cliente ou nome do cliente"""
     try:
         client_id = request.args.get('client_id', '').strip()
         client_name = request.args.get('client_name', '').strip()
