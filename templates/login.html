@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
   <head>
     <link
-    rel="icon"
-    href="{{ url_for('static', filename='img/netflex.png') }}"
-    type="image/x-icon"
+      rel="icon"
+      href="{{ url_for('static', filename='img/netflex.png') }}"
+      type="image/x-icon"
     />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -22,27 +22,21 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='css/login.css') }}"
     />
-    <link
-      rel="icon"
-      href="{{ url_for('static', filename='netflex.png') }}"
-      type="image/x-icon"
-    />
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    </head>
-    <body>
+  </head>
+  <body>
     <!-- Header -->
     <header>
       <div class="container">
-      <img
-        src="{{ url_for('static', filename='img/logo.png') }}"
-        alt="Logo NETFLEX"
-      />
-      <div class="text-center">
-        <h1>NETFLEX - Login</h1>
-        <p>
-        Faça login para se conectar ao agendamento de serviços
-        </p>
-      </div>
+        <img
+          src="{{ url_for('static', filename='img/logo.png') }}"
+          alt="Logo NETFLEX"
+        />
+        <div class="text-center">
+          <h1>NETFLEX - Login</h1>
+          <p>Faça login para se conectar ao agendamento de serviços</p>
+        </div>
       </div>
     </header>
     <!-- Espaço mínimo entre header e main -->
@@ -76,7 +70,14 @@
                     name="password"
                     required
                   />
-                  <button type="button" class="olho-btn" tabindex="-1" onclick="toggleSenha('password', this)"><i class="fa fa-eye"></i></button>
+                  <button
+                    type="button"
+                    class="olho-btn"
+                    tabindex="-1"
+                    onclick="toggleSenha('password', this)"
+                  >
+                    <i class="fa fa-eye"></i>
+                  </button>
                 </div>
               </div>
               <button type="submit">
@@ -94,8 +95,16 @@
           <!-- Card de Recuperação de Senha -->
           <div class="card recovery-card" id="recoveryCard">
             <h2>Recuperar Senha</h2>
-            <form id="recoveryForm" method="POST" action="{{ url_for('recuperar') }}">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <form
+              id="recoveryForm"
+              method="POST"
+              action="{{ url_for('recuperar') }}"
+            >
+              <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+              />
               <div>
                 <label for="email">E-mail</label>
                 <input
@@ -108,7 +117,7 @@
               </div>
               <div class="terms-container">
                 <label class="checkbox-label">
-                  <input type="checkbox" id="terms" name="terms" required>
+                  <input type="checkbox" id="terms" name="terms" required />
                   <span class="checkmark"></span>
                   Você concorda com os termos?
                 </label>
@@ -131,12 +140,8 @@
     <!-- Footer -->
     <footer>
       <div class="container">
-      <p>
-      NETFLEX — Conectando Pessoas e Soluções
-      </p>
-      <p>
-      © 2024 NETFLEX. Todos os direitos reservados.
-      </p>
+        <p>NETFLEX — Conectando Pessoas e Soluções</p>
+        <p>© 2024 NETFLEX. Todos os direitos reservados.</p>
       </div>
     </footer>
 

@@ -10,6 +10,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, PasswordField  
 from wtforms.validators import DataRequired, Length, EqualTo  
 import sqlite3
+import psycopg2
+from psycopg2.extras import DictCursor
 from wtforms import TextAreaField
 import logging
 from flask_session import Session
@@ -58,10 +60,74 @@ logging.basicConfig(filename='instance/user_logs.log', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 
+class DBConnectionWrapper:
+    def __init__(self, conn):
+        self._conn = conn
+        self.row_factory = None
+
+    def cursor(self):
+        return DBCursorWrapper(self._conn.cursor(cursor_factory=DictCursor))
+
+    def commit(self):
+        return self._conn.commit()
+
+    def rollback(self):
+        return self._conn.rollback()
+
+    def close(self):
+        return self._conn.close()
+
+
+class DBCursorWrapper:
+    def __init__(self, cursor):
+        self._cursor = cursor
+        self.lastrowid = None
+
+    def execute(self, query, params=None):
+        pg_query = query.replace('?', '%s')
+        self._cursor.execute(pg_query, params or ())
+
+        normalized = query.strip().upper()
+        if normalized.startswith('INSERT') and 'RETURNING' not in normalized:
+            try:
+                self._cursor.execute('SELECT LASTVAL()')
+                last = self._cursor.fetchone()
+                self.lastrowid = last[0] if last else None
+            except Exception:
+                self.lastrowid = None
+        return self
+
+    def fetchone(self):
+        return self._cursor.fetchone()
+
+    def fetchall(self):
+        return self._cursor.fetchall()
+
+    def __getattr__(self, name):
+        return getattr(self._cursor, name)
+
+
 def get_db_connection():
-    conn = sqlite3.connect('instance/netflex.db')
-    conn.row_factory = sqlite3.Row
-    return conn
+    retries = int(os.environ.get('DB_CONNECT_RETRIES', 20))
+    retry_delay = float(os.environ.get('DB_CONNECT_RETRY_DELAY', 1.5))
+    last_error = None
+
+    for attempt in range(1, retries + 1):
+        try:
+            conn = psycopg2.connect(
+                host=os.environ.get('DB_HOST', 'postgres-nova'),
+                port=int(os.environ.get('DB_PORT', 5432)),
+                dbname=os.environ.get('DB_NAME', 'agendamentos'),
+                user=os.environ.get('DB_USER', 'mateus'),
+                password=os.environ.get('DB_PASSWORD', 'Vazdevflex@390')
+            )
+            return DBConnectionWrapper(conn)
+        except psycopg2.OperationalError as exc:
+            last_error = exc
+            if attempt < retries:
+                time.sleep(retry_delay)
+
+    raise last_error
 
 class AddUserForm(FlaskForm):
     name = StringField('Nome', validators=[DataRequired(message="O nome é obrigatório."), Length(max=100)])
@@ -93,19 +159,19 @@ def init_db():
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             name TEXT NOT NULL,
             login TEXT NOT NULL UNIQUE,
             password TEXT NOT NULL,
             type TEXT NOT NULL,
             must_change_password INTEGER DEFAULT 1,
-            created_by INTEGER NOT NULL,
+            created_by INTEGER,
             FOREIGN KEY (created_by) REFERENCES users(id)
         )
     ''')
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS installations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             client_id TEXT NOT NULL,
             client_name TEXT NOT NULL,
             installation_type TEXT NOT NULL,
@@ -115,12 +181,14 @@ def init_db():
             attendant TEXT NOT NULL,
             observation TEXT,
             created_by INTEGER NOT NULL,
+            turno_preferencial TEXT,
+            filial TEXT,
             FOREIGN KEY (created_by) REFERENCES users(id)
         )
     ''')
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS user_logs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             user_id INTEGER,
             action TEXT NOT NULL,
             timestamp TEXT NOT NULL,
@@ -129,21 +197,19 @@ def init_db():
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     ''')
-    try:
-        cursor.execute('ALTER TABLE user_logs ADD COLUMN ip_address TEXT')
-    except sqlite3.OperationalError:
-        pass
-    try:
-        cursor.execute('ALTER TABLE user_logs ADD COLUMN user_agent TEXT')
-    except sqlite3.OperationalError:
-        pass
+    cursor.execute('ALTER TABLE user_logs ADD COLUMN IF NOT EXISTS ip_address TEXT')
+    cursor.execute('ALTER TABLE user_logs ADD COLUMN IF NOT EXISTS user_agent TEXT')
+    cursor.execute('ALTER TABLE installations ADD COLUMN IF NOT EXISTS filial TEXT')
+    cursor.execute('ALTER TABLE installations ADD COLUMN IF NOT EXISTS turno_preferencial TEXT')
 
     cursor.execute('SELECT * FROM users WHERE login = ?', ('admin',))
     if not cursor.fetchone():
         cursor.execute('''
-            INSERT INTO users (name, login, password, type, must_change_password, created_by) VALUES (?, ?, ?, ?, ?, ?)
-        ''', ('Admin NETFLEX', 'admin', generate_password_hash('admin123'), 'admin', 1, 0))
-        admin_id = cursor.lastrowid  
+            INSERT INTO users (name, login, password, type, must_change_password, created_by)
+            VALUES (?, ?, ?, ?, ?, ?)
+            RETURNING id
+        ''', ('Admin NETFLEX', 'admin', generate_password_hash('admin123'), 'admin', 1, None))
+        admin_id = cursor.fetchone()[0]
         cursor.execute('UPDATE users SET created_by = ? WHERE id = ?', (admin_id, admin_id))
     conn.commit()
     conn.close()
@@ -589,13 +655,13 @@ def add_installation():
             cursor.execute('''
                 ALTER TABLE installations ADD COLUMN filial TEXT
             ''')
-        except sqlite3.OperationalError:
+        except Exception:
             pass
         try:
             cursor.execute('''
                 ALTER TABLE installations ADD COLUMN turno_preferencial TEXT
             ''')
-        except sqlite3.OperationalError:
+        except Exception:
             pass
         try:
             cursor.execute('''
@@ -605,7 +671,7 @@ def add_installation():
                  installation['plan'], installation['request_date'], installation['due_date'].strftime('%Y-%m-%d'),
                  installation['attendant'], installation['turno_preferencial'], installation['observation'], installation['filial'], installation['created_by']))
             conn.commit()
-        except sqlite3.Error as e:
+        except Exception as e:
             print("Erro SQLite:", e)  # Debug
             conn.close()
             return jsonify({'success': False, 'message': 'Erro ao salvar a instalação.'})
@@ -738,7 +804,7 @@ def delete_installation(id):
     try:
         cursor.execute('DELETE FROM installations WHERE id = ?', (id,))
         conn.commit()
-    except sqlite3.Error as e:
+    except Exception as e:
         conn.close()
         print(f"SQLite error: {e}")  # Debug
         return jsonify({'success': False, 'message': 'Erro ao excluir instalação.'})
@@ -860,7 +926,6 @@ def search_installation_by_client():
 
 
 def format_installation_response(installation, search_type=''):
-    """Formata a resposta da instalação para o frontend"""
     installation_dict = dict(installation)
     
     installation_dict['clientId'] = installation_dict.pop('client_id', '')
@@ -908,7 +973,13 @@ def format_installation_response(installation, search_type=''):
 def update_installation(id):
     try:
         data = request.get_json()
+        client_id = (data.get('client_id') or '').strip()
+        client_name = (data.get('client_name') or '').strip()
+        installation_type = (data.get('installation_type') or '').strip()
+        plan = (data.get('plan') or '').strip()
+        request_date = (data.get('request_date') or '').strip()
         due_date = data.get('due_date')
+        attendant = (data.get('attendant') or '').strip()
         observation = data.get('observation', '')
         
         if not due_date:
@@ -928,7 +999,7 @@ def update_installation(id):
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        cursor.execute('SELECT client_name, client_id, due_date, filial FROM installations WHERE id = ?', (id,))
+        cursor.execute('SELECT * FROM installations WHERE id = ?', (id,))
         installation = cursor.fetchone()
         if not installation:
             conn.close()
@@ -976,9 +1047,19 @@ def update_installation(id):
         
         cursor.execute('''
             UPDATE installations 
-            SET due_date = ?, observation = ? 
+            SET client_id = ?, client_name = ?, installation_type = ?, plan = ?, request_date = ?, due_date = ?, attendant = ?, observation = ? 
             WHERE id = ?
-        ''', (due_date, observation, id))
+        ''', (
+            client_id or installation['client_id'],
+            client_name or installation['client_name'],
+            installation_type or installation['installation_type'],
+            plan or installation['plan'],
+            request_date if request_date != '' else installation['request_date'],
+            due_date,
+            attendant or installation['attendant'],
+            observation,
+            id,
+        ))
         
         conn.commit()
         conn.close()
@@ -1002,7 +1083,13 @@ def update_installation_modal():
     try:
         data = request.get_json()
         installation_id = data.get('id')
+        client_id = (data.get('client_id') or '').strip()
+        client_name = (data.get('client_name') or '').strip()
+        installation_type = (data.get('installation_type') or '').strip()
+        plan = (data.get('plan') or '').strip()
+        request_date = (data.get('request_date') or '').strip()
         due_date = data.get('dueDate')
+        attendant = (data.get('attendant') or '').strip()
         observation = data.get('observation', '')
         
         if not installation_id:
@@ -1025,7 +1112,7 @@ def update_installation_modal():
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        cursor.execute('SELECT client_name, client_id, due_date, observation, filial FROM installations WHERE id = ?', (installation_id,))
+        cursor.execute('SELECT * FROM installations WHERE id = ?', (installation_id,))
         installation = cursor.fetchone()
         if not installation:
             conn.close()
@@ -1074,9 +1161,19 @@ def update_installation_modal():
         
         cursor.execute('''
             UPDATE installations 
-            SET due_date = ?, observation = ? 
+            SET client_id = ?, client_name = ?, installation_type = ?, plan = ?, request_date = ?, due_date = ?, attendant = ?, observation = ? 
             WHERE id = ?
-        ''', (due_date, observation, installation_id))
+        ''', (
+            client_id or installation['client_id'],
+            client_name or installation['client_name'],
+            installation_type or installation['installation_type'],
+            plan or installation['plan'],
+            request_date if request_date != '' else installation['request_date'],
+            due_date,
+            attendant or installation['attendant'],
+            observation,
+            installation_id,
+        ))
         
         conn.commit()
         conn.close()
@@ -1121,7 +1218,7 @@ def change_password():
             cursor.execute('UPDATE users SET password = ? WHERE id = ?',
                            (generate_password_hash(new_password), current_user.id))
             conn.commit()
-        except sqlite3.Error as e:
+        except Exception as e:
             conn.close()
             print("Erro SQLite:", e)  # Debug
             flash('Erro ao alterar a senha.', 'error')
@@ -1184,7 +1281,7 @@ def add_user():
             errors = form.errors
             print(f"Erros de validação do formulário: {errors}")
             return jsonify({'success': False, 'message': 'Erro de validação: ' + ', '.join([f"{k}: {v[0]}" for k, v in errors.items()])}), 400
-    except sqlite3.IntegrityError as e:
+    except Exception as e:
         print(f"Error in add_user: {str(e)}")
         return jsonify({'success': False, 'message': 'Este login já está em uso. Escolha outro.'}), 400
     except Exception as e:
@@ -1237,7 +1334,7 @@ def edit_user():
         conn.close()
         log_action(current_user.id, f'Edited user {login}')
         return jsonify({'success': True, 'message': 'Usuário atualizado com sucesso!'})
-    except sqlite3.IntegrityError:
+    except Exception:
         conn.close()
         return jsonify({'success': False, 'message': 'Erro: Login já existe.'}), 400
     except Exception as e:
@@ -1472,12 +1569,11 @@ def api_relatorios():
         query += ' AND due_date = ?'
         params.append(dia)
     elif mes and ano:
-        query += ' AND strftime("%m", due_date) = ? AND strftime("%Y", due_date) = ?'
-        params.append(mes.zfill(2))
-        params.append(ano)
+        query += ' AND due_date LIKE ?'
+        params.append(f'{ano}-{mes.zfill(2)}-%')
     elif ano:
-        query += ' AND strftime("%Y", due_date) = ?'
-        params.append(ano)
+        query += ' AND due_date LIKE ?'
+        params.append(f'{ano}-%')
     query += ' ORDER BY id DESC'
     conn = get_db_connection()
     conn.row_factory = sqlite3.Row
@@ -1510,12 +1606,11 @@ def exportar_csv():
         query += ' AND due_date = ?'
         params.append(dia)
     elif mes and ano:
-        query += ' AND strftime("%m", due_date) = ? AND strftime("%Y", due_date) = ?'
-        params.append(mes.zfill(2))
-        params.append(ano)
+        query += ' AND due_date LIKE ?'
+        params.append(f'{ano}-{mes.zfill(2)}-%')
     elif ano:
-        query += ' AND strftime("%Y", due_date) = ?'
-        params.append(ano)
+        query += ' AND due_date LIKE ?'
+        params.append(f'{ano}-%')
     query += ' ORDER BY id DESC'
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -1544,12 +1639,11 @@ def exportar_excel():
         query += ' AND due_date = ?'
         params.append(dia)
     elif mes and ano:
-        query += ' AND strftime("%m", due_date) = ? AND strftime("%Y", due_date) = ?'
-        params.append(mes.zfill(2))
-        params.append(ano)
+        query += ' AND due_date LIKE ?'
+        params.append(f'{ano}-{mes.zfill(2)}-%')
     elif ano:
-        query += ' AND strftime("%Y", due_date) = ?'
-        params.append(ano)
+        query += ' AND due_date LIKE ?'
+        params.append(f'{ano}-%')
     query += ' ORDER BY id DESC'
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -1589,12 +1683,11 @@ def exportar_pdf():
         query += ' AND due_date = ?'
         params.append(dia)
     elif mes and ano:
-        query += ' AND strftime("%m", due_date) = ? AND strftime("%Y", due_date) = ?'
-        params.append(mes.zfill(2))
-        params.append(ano)
+        query += ' AND due_date LIKE ?'
+        params.append(f'{ano}-{mes.zfill(2)}-%')
     elif ano:
-        query += ' AND strftime("%Y", due_date) = ?'
-        params.append(ano)
+        query += ' AND due_date LIKE ?'
+        params.append(f'{ano}-%')
     query += ' ORDER BY id DESC'
     conn = get_db_connection()
     cursor = conn.cursor()

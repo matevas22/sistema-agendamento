@@ -1,20 +1,29 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
   <head>
     <link
-    rel="icon"
-    href="{{ url_for('static', filename='img/netflex.png') }}"
-    type="image/x-icon"
+      rel="icon"
+      href="{{ url_for('static', filename='img/netflex.png') }}"
+      type="image/x-icon"
     />
     <script src="https://cdn.tailwindcss.com"></script>
 
-      <!-- Font Awesome (ícone de calendário) -->
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <!-- Font Awesome (ícone de calendário) -->
+    <script
+      src="https://kit.fontawesome.com/a076d05399.js"
+      crossorigin="anonymous"
+    ></script>
 
-      <!-- Flatpickr CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-      <!-- Tema opcional com visual mais limpo -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+    <!-- Flatpickr CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+    <!-- Tema opcional com visual mais limpo -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css"
+    />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NETFLEX - agendamento</title>
@@ -27,7 +36,7 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='css/styles.css') }}"
     />
-  
+
     <script>
       tailwind.config = {
         theme: {
@@ -54,13 +63,9 @@
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link
-      href="{{ url_for('static', filename='css/tailwind.css') }}"
-      rel="stylesheet"
-    />
+
     <!-- Add SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
   </head>
   <body class="flex h-screen bg-light">
     <!-- Sidebar Modernizado -->
@@ -142,10 +147,13 @@
             href="{{ url_for('relatorios') }}"
             class="sidebar-item {% if request.endpoint == 'relatorios' %}active{% endif %} flex items-center gap-3 px-4 py-3 text-sm group transition-all duration-200 hover:bg-gray-700"
           >
-            <i class="fas fa-file-alt w-5 h-5 text-indigo-600 group-hover:scale-110 transition-transform"></i>
+            <i
+              class="fas fa-file-alt w-5 h-5 text-indigo-600 group-hover:scale-110 transition-transform"
+            ></i>
             Relatórios
           </a>
-          {% if current_user.is_authenticated and current_user.type == 'admin' %}
+          {% if current_user.is_authenticated and current_user.type == 'admin'
+          %}
           <a
             href="{{ url_for('manage_users') }}"
             class="sidebar-item {% if request.endpoint == 'manage_users' %}active{% endif %} flex items-center gap-3 px-4 py-3 text-sm admin-only group transition-all duration-200 hover:bg-gray-700"
@@ -178,23 +186,50 @@
         <!-- Usuário -->
         <div class="mt-auto pt-6 border-t border-gray-700 flex flex-col gap-3">
           {% if current_user.is_authenticated %}
-            <div style="display: flex; align-items: center; gap: 12px;">
-              {% set nomes = current_user.name.split() %}
-              {% set inicial1 = nomes[0][0]|upper if nomes|length > 0 else '' %}
-              {% set inicial2 = nomes[-1][0]|upper if nomes|length > 1 else '' %}
-              <span style="background: #FF7043; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: bold; color: #fff;">
-                {{ inicial1 }}{{ inicial2 }}
-              </span>
-              <div>
-                <p class="text-sm font-medium" style="margin: 0; display: flex; align-items: center; gap: 8px;">
-                  {{ current_user.name }}
-                  <a href="{{ url_for('configuracoes') }}" title="Configurações" style="color: #6366f1; display: inline-flex; align-items: center;">
-                    <i class="fas fa-cog"></i>
-                  </a>
-                </p>
-                <p class="text-xs text-gray-400" style="margin: 0;">{{ 'Administrador' if current_user.type == 'admin' else 'Usuário' }}</p>
-              </div>
+          <div style="display: flex; align-items: center; gap: 12px">
+            {% set nomes = current_user.name.split() %} {% set inicial1 =
+            nomes[0][0]|upper if nomes|length > 0 else '' %} {% set inicial2 =
+            nomes[-1][0]|upper if nomes|length > 1 else '' %}
+            <span
+              style="
+                background: #ff7043;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.3rem;
+                font-weight: bold;
+                color: #fff;
+              "
+            >
+              {{ inicial1 }}{{ inicial2 }}
+            </span>
+            <div>
+              <p
+                class="text-sm font-medium"
+                style="margin: 0; display: flex; align-items: center; gap: 8px"
+              >
+                {{ current_user.name }}
+                <a
+                  href="{{ url_for('configuracoes') }}"
+                  title="Configurações"
+                  style="
+                    color: #6366f1;
+                    display: inline-flex;
+                    align-items: center;
+                  "
+                >
+                  <i class="fas fa-cog"></i>
+                </a>
+              </p>
+              <p class="text-xs text-gray-400" style="margin: 0">
+                {{ 'Administrador' if current_user.type == 'admin' else
+                'Usuário' }}
+              </p>
             </div>
+          </div>
           {% endif %}
           <span
             id="span"
@@ -306,7 +341,8 @@
               href="{{ url_for('dashboard') }}"
               class="sidebar-item {% if request.endpoint == 'dashboard' %}active{% endif %} flex items-center px-4 py-3 text-sm"
             >
-              <i class="fas fa-tachometer-alt w-5 h-5 mr-3"></i> Dashboard Caxias
+              <i class="fas fa-tachometer-alt w-5 h-5 mr-3"></i> Dashboard
+              Caxias
             </a>
             <a
               href="{{ url_for('dashboard_vilar') }}"
@@ -333,11 +369,15 @@
               <i class="fas fa-key w-5 h-5 mr-3"></i> Trocar Senha
             </a>
             <li>
-        <a href="{{ url_for('relatorios') }}" class="sidebar-item flex items-center px-4 py-3 text-sm">
-          <i class="fas fa-file-alt w-5 h-5 mr-3"></i> Relatórios
-        </a>
-      </li>
-            {% if current_user.is_authenticated and current_user.type == 'admin' %}
+              <a
+                href="{{ url_for('relatorios') }}"
+                class="sidebar-item flex items-center px-4 py-3 text-sm"
+              >
+                <i class="fas fa-file-alt w-5 h-5 mr-3"></i> Relatórios
+              </a>
+            </li>
+            {% if current_user.is_authenticated and current_user.type == 'admin'
+            %}
             <a
               href="{{ url_for('manage_users') }}"
               class="sidebar-item {% if request.endpoint == 'manage_users' %}active{% endif %} flex items-center px-4 py-3 text-sm admin-only"
@@ -386,25 +426,25 @@
     <!-- Main Content -->
     <main class="flex-1 overflow-y-auto p-6">
       <div id="main-zoom">
-      {% with messages = get_flashed_messages(with_categories=true) %} {% if
-      messages %} {% for category, message in messages %}
-      <div
-        class="notification {{ 'bg-green-500' if category == 'success' else 'bg-red-500' if category == 'error' else 'bg-blue-500' }} show"
-      >
-        <div class="notification-icon">
-          <i
-            class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-circle' if category == 'error' else 'fa-info-circle' }}"
-          ></i>
-        </div>
-        <div class="notification-content">
-          <div class="notification-title">
-            {{ 'Sucesso!' if category == 'success' else 'Erro!' if category ==
-            'error' else 'Informação!' }}
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %} {% for category, message in messages %}
+        <div
+          class="notification {{ 'bg-green-500' if category == 'success' else 'bg-red-500' if category == 'error' else 'bg-blue-500' }} show"
+        >
+          <div class="notification-icon">
+            <i
+              class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-circle' if category == 'error' else 'fa-info-circle' }}"
+            ></i>
           </div>
-          <div class="notification-message">{{ message }}</div>
+          <div class="notification-content">
+            <div class="notification-title">
+              {{ 'Sucesso!' if category == 'success' else 'Erro!' if category ==
+              'error' else 'Informação!' }}
+            </div>
+            <div class="notification-message">{{ message }}</div>
+          </div>
         </div>
-      </div>
-      {% endfor %} {% endif %} {% endwith %} {% block content %}{% endblock %}
+        {% endfor %} {% endif %} {% endwith %} {% block content %}{% endblock %}
       </div>
     </main>
     <div
@@ -591,7 +631,15 @@
           </button>
         </div>
         <div class="mb-4">
-          <p id="modalObservationText" class="text-gray-700" style="word-break: break-word; max-width: 100%; white-space: pre-wrap;"></p>
+          <p
+            id="modalObservationText"
+            class="text-gray-700"
+            style="
+              word-break: break-word;
+              max-width: 100%;
+              white-space: pre-wrap;
+            "
+          ></p>
         </div>
         <div class="flex justify-end">
           <button

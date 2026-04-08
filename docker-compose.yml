@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   nova-flask-app:
     build:
@@ -9,11 +7,23 @@ services:
     ports:
       - "8001:8001"
     depends_on:
-      - redis-nova
+      redis-nova:
+        condition: service_started
+      postgres-nova:
+        condition: service_healthy
     environment:
       - FLASK_ENV=production
       - TZ=America/Sao_Paulo
+      - DB_HOST=${DB_HOST:-postgres-nova}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_NAME=${DB_NAME:-agendamentos}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_CONNECT_RETRIES=30
+      - DB_CONNECT_RETRY_DELAY=1.5
     volumes:
+      - ./config.json:/usr/src/app/config.json
+      - ./instance:/usr/src/app/instance
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
     restart: unless-stopped
@@ -22,11 +32,39 @@ services:
     image: redis:latest
     container_name: redis-nova
     ports:
-      - "6380:6379"
+      - "127.0.0.1:6380:6379"
     environment:
       - TZ=America/Sao_Paulo
     volumes:
-      - ./instance:/app/instance
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
     restart: unless-stopped
+
+  postgres-nova:
+    image: postgres:16-alpine
+    container_name: postgres-nova
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-agendamentos}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - TZ=America/Sao_Paulo
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - postgres_data_nova:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB:-agendamentos}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  postgres_data_nova:

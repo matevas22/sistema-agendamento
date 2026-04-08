@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
               if (parts.length === 3) {
                 date = `${parts[2]}-${parts[1].padStart(
                   2,
-                  "0"
+                  "0",
                 )}-${parts[0].padStart(2, "0")}`;
               }
             }
@@ -195,7 +195,7 @@ document.addEventListener("DOMContentLoaded", function () {
           mostrarMensagem(
             "msgPlanos",
             "Planos atualizados com sucesso!",
-            "success"
+            "success",
           );
           renderPlanos();
         } else {
@@ -302,7 +302,7 @@ document.addEventListener("DOMContentLoaded", function () {
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(
         2,
-        "0"
+        "0",
       )}-${String(day).padStart(2, "0")}`;
       const date = new Date(currentYear, currentMonth, day);
       const dayOfWeek = date.getDay();
@@ -461,7 +461,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     config.limites_personalizados[selectedFilial][selectedDate] = parseInt(
       limit,
-      10
+      10,
     );
 
     fetch("/api/configuracoes", {
@@ -480,14 +480,14 @@ document.addEventListener("DOMContentLoaded", function () {
             showMessage(
               "msgLimitePersonalizado",
               "Limite personalizado salvo com sucesso!",
-              "success"
+              "success",
             );
           });
         } else {
           showMessage(
             "msgLimitePersonalizado",
             data.message || "Erro ao salvar.",
-            "error"
+            "error",
           );
         }
       })
@@ -502,7 +502,7 @@ document.addEventListener("DOMContentLoaded", function () {
       showMessage(
         "msgLimitePersonalizado",
         "Data ou filial não selecionada.",
-        "error"
+        "error",
       );
       return;
     }
@@ -514,20 +514,20 @@ document.addEventListener("DOMContentLoaded", function () {
       showMessage(
         "msgLimitePersonalizado",
         "Não há limite personalizado para remover.",
-        "error"
+        "error",
       );
       return;
     }
 
     if (
       !config.limites_personalizados[selectedFilial].hasOwnProperty(
-        selectedDate
+        selectedDate,
       )
     ) {
       showMessage(
         "msgLimitePersonalizado",
         "Não há limite personalizado para esta data.",
-        "error"
+        "error",
       );
       return;
     }
@@ -567,14 +567,14 @@ document.addEventListener("DOMContentLoaded", function () {
             showMessage(
               "msgLimitePersonalizado",
               "Limite personalizado removido com sucesso!",
-              "success"
+              "success",
             );
           });
         } else {
           showMessage(
             "msgLimitePersonalizado",
             data.message || "Erro ao remover.",
-            "error"
+            "error",
           );
         }
       })
@@ -583,7 +583,7 @@ document.addEventListener("DOMContentLoaded", function () {
         showMessage(
           "msgLimitePersonalizado",
           "Erro ao remover limite personalizado.",
-          "error"
+          "error",
         );
       });
   }
@@ -705,7 +705,7 @@ document.addEventListener("DOMContentLoaded", function () {
         limites[filial] = {};
         dias.forEach((dia) => {
           const input = document.getElementById(
-            `${filial.toLowerCase()}_${dia}`
+            `${filial.toLowerCase()}_${dia}`,
           );
           limites[filial][dia] = parseInt(input.value, 10) || 0;
         });
@@ -858,7 +858,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!pesquisaId && !pesquisaNome) {
         mostrarMensagemPesquisa(
           "Por favor, digite o ID ou nome do cliente.",
-          "error"
+          "error",
         );
         return;
       }
@@ -929,13 +929,13 @@ function pesquisarServico(clientId, clientName) {
         const searchTerm = clientId || clientName;
         mostrarMensagemPesquisa(
           `Serviço encontrado para "${searchTerm}"!`,
-          "success"
+          "success",
         );
       } else {
         const searchTerm = clientId || clientName;
         mostrarMensagemPesquisa(
           data.message || `Serviço não encontrado para "${searchTerm}".`,
-          "error"
+          "error",
         );
         ocultarFormularioEdicao();
       }
@@ -983,6 +983,7 @@ function parseDateSafeConfig(dateStr) {
 }
 
 function preencherFormularioEdicao(installation) {
+  document.getElementById("editServiceId").value = installation.id || "";
   document.getElementById("editClientId").value = installation.clientId || "";
   document.getElementById("editClientName").value =
     installation.clientName || "";
@@ -994,7 +995,7 @@ function preencherFormularioEdicao(installation) {
 
   // Converter dueDate para o formato correto de exibição
   const dueDateFormatted = formatDateForDisplayConfig(
-    installation.dueDate || ""
+    installation.dueDate || "",
   );
   document.getElementById("editDueDate").value = dueDateFormatted;
   document.getElementById("editAttendant").value = installation.attendant || "";
@@ -1051,7 +1052,16 @@ function salvarEdicaoServico() {
     return;
   }
 
+  const editServiceId = document.getElementById("editServiceId").value;
+  const clientId = document.getElementById("editClientId").value;
+  const clientName = document.getElementById("editClientName").value;
+  const installationType = document.getElementById(
+    "editInstallationType",
+  ).value;
+  const plan = document.getElementById("editPlan").value;
+  const requestDate = document.getElementById("editRequestDate").value;
   const dueDate = document.getElementById("editDueDate").value;
+  const attendant = document.getElementById("editAttendant").value;
   const observation = document.getElementById("editObservation").value;
 
   if (!dueDate) {
@@ -1060,7 +1070,14 @@ function salvarEdicaoServico() {
   }
 
   const dadosEdicao = {
+    id: editServiceId || serviceId,
+    client_id: clientId,
+    client_name: clientName,
+    installation_type: installationType,
+    plan: plan,
+    request_date: requestDate,
     due_date: dueDate,
+    attendant: attendant,
     observation: observation,
   };
 
@@ -1089,7 +1106,7 @@ function salvarEdicaoServico() {
       } else {
         mostrarMensagemEdicao(
           data.message || "Erro ao atualizar serviço.",
-          "error"
+          "error",
         );
       }
     })
