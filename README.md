@@ -1,10 +1,10 @@
 # Sistema de Agendamentos de Serviços - NETFLEX
 
-## 📋 Descrição
+## Descrição
 
 Sistema web desenvolvido em Flask para gerenciamento de agendamentos de serviços de internet da empresa NETFLEX. A aplicação permite o controle de instalações, transferências e outros serviços de fibra óptica, com dashboards específicos para diferentes filiais (Caxias e Vilar).
 
-## ✨ Funcionalidades Principais
+## Funcionalidades Principais
 
 ### 🏠 Dashboards
 - **Dashboard Caxias**: Visualização de serviços agendados para a filial de Caxias
@@ -41,7 +41,7 @@ Sistema web desenvolvido em Flask para gerenciamento de agendamentos de serviço
 
 ### Backend
 - **Flask 3.1.1** - Framework web
-- **SQLite** - Banco de dados
+- **Postgres** - Banco de dados
 - **Flask-Login** - Autenticação
 - **Flask-WTF** - Formulários e CSRF
 - **Flask-Session** - Gerenciamento de sessões
@@ -67,7 +67,7 @@ Sistema web desenvolvido em Flask para gerenciamento de agendamentos de serviço
 - **Gunicorn** - Servidor WSGI
 - **Redis** - Cache e sessões
 
-## 📦 Instalação
+## Instalação
 
 ### Pré-requisitos
 - Python 3.11+
@@ -135,7 +135,7 @@ docker-compose up -d
 
 A aplicação estará disponível em `http://localhost:8001`
 
-## 🔐 Acesso Inicial
+## Acesso Inicial
 
 - **URL**: `http://localhost:8001`
 - **Login padrão**: `admin`
@@ -143,7 +143,7 @@ A aplicação estará disponível em `http://localhost:8001`
 
 ⚠️ **Importante**: Altere a senha padrão no primeiro acesso!
 
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 netflex_app/
@@ -176,9 +176,9 @@ Configure as credenciais de e-mail para:
 ### API IXC
 Configure o token de autenticação da API IXC para consulta automática de dados dos clientes.
 
-## 📊 Funcionalidades por Tipo de Usuário
+## Funcionalidades por Tipo de Usuário
 
-### 👤 Usuário Comum
+### Usuário Comum
 - Visualizar dashboards
 - Adicionar novos serviços
 - Visualizar lista de serviços
@@ -186,7 +186,7 @@ Configure o token de autenticação da API IXC para consulta automática de dado
 - Gerar relatórios
 - Alterar própria senha
 
-### 👑 Administrador
+### Administrador
 - Todas as funcionalidades de usuário comum
 - Gerenciar usuários (criar, editar, excluir)
 - Visualizar logs de atividades
@@ -194,7 +194,7 @@ Configure o token de autenticação da API IXC para consulta automática de dado
 - Configurar feriados
 - Acessar configurações do sistema
 
-## 🚀 Deploy em Produção
+## Deploy em Produção
 
 ### Com Docker (Recomendado)
 
@@ -211,7 +211,7 @@ docker-compose up -d
 3. **Configure SSL/HTTPS**
 4. **Configure backup do banco de dados**
 
-## 🔒 Segurança
+## Segurança
 
 - Autenticação obrigatória
 - Proteção CSRF
@@ -220,7 +220,7 @@ docker-compose up -d
 - Logs de auditoria
 - Sessões seguras
 
-## 📝 Logs
+## Logs
 
 O sistema mantém logs detalhados de todas as ações dos usuários:
 - Login/Logout
@@ -228,7 +228,7 @@ O sistema mantém logs detalhados de todas as ações dos usuários:
 - Gerenciamento de usuários
 - Alterações de configuração
 
-## 🐛 Solução de Problemas
+## Solução de Problemas
 
 ### Problemas Comuns
 
@@ -244,13 +244,13 @@ O sistema mantém logs detalhados de todas as ações dos usuários:
    - Verifique se o usuário tem as permissões necessárias
    - Confirme se está logado como administrador
 
-## 📞 Suporte
+## Suporte
 
 Para suporte técnico, entre em contato com:
 - **Desenvolvedor**: Mateus Vaz
 - **E-mail**: suporte.agendamentos@internetflex.com
 
-## 📄 Licença
+## Licença
 
 Todos os direitos reservados © Copyright
 Desenvolvido por Mateus Vaz
